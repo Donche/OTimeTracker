@@ -3,11 +3,13 @@ from tkinter import *
 from tkinter import font as tkFont
 from PIL import Image, ImageTk
 import time
+from datetime import datetime
 
 from os.path import exists
 
 ProjectNames = set()
 ProjectButtons = []
+TrackRecord = {}
 workingProject = ""
 
 BIG_BUTTTON_HEIGHT = 10
@@ -16,14 +18,13 @@ SMALL_BUTTTON_HEIGHT = 3
 
 
 startTime = 0
-endTime = 0
 tracking = False
+
 
 dragging = False
 
 def drag(event):
     global dragging
-    print("drag")
     x = m.winfo_pointerx() - m.offsetx
     y = m.winfo_pointery() - m.offsety
     m.geometry('+{x}+{y}'.format(x=x,y=y))
@@ -31,7 +32,6 @@ def drag(event):
 
 def click(event):
     global dragging
-    print("click")
     m.offsetx = event.x
     m.offsety = event.y
     dragging = False
@@ -78,7 +78,6 @@ def confirmNewItem(entry, destroyList: list):
     if newItemName != "" and newItemName not in ProjectNames:
         ProjectNames.add(newItemName)
         addNewProjectButton(newItemName)
-        ##To save in file
         with open('OTT_projects.txt','a') as f:
             f.write(newItemName+"\n")
 
@@ -88,8 +87,10 @@ def confirmNewItem(entry, destroyList: list):
 def updateWorkingTime():
     global startTime
     global tracking
-    print("update time")
-    CountingLabel.configure(text=timeFormatter(time.time()-startTime))
+    # print("update time")
+    # CountingLabel.configure(text=str(datetime.now()-startTime))
+    t = datetime.now()-startTime
+    CountingLabel.configure(text="{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
     if tracking:
         CountingLabel.after(1000, updateWorkingTime)
 
@@ -97,11 +98,10 @@ def updateWorkingTime():
 def startWorking(button):
     global startTime
     global tracking
+    global workingProject
     workingProject = button['text']
-    print("start working on: ", workingProject)
-    startTime = time.time()
+    startTime= datetime.now()
     tracking = True
-    print("start time: ", startTime)
     NewItemButton.pack_forget()
     for button in ProjectButtons:
         button.pack_forget()
@@ -113,11 +113,21 @@ def startWorking(button):
 def stopWorking():
     global startTime
     global tracking
-    print("stop working ", workingProject)
-    endTime = time.time()
+    global workingProject
+    endTime = datetime.now() 
     tracking = False
-    print("start time: ", startTime)
-    print("end time: ", endTime, ", working time: ", endTime-startTime)
+
+    if workingProject in TrackRecord:
+        TrackRecord[workingProject].append((str(startTime), str(endTime), (endTime-startTime).seconds))
+    else:
+        TrackRecord[workingProject] = [(str(startTime), str(endTime), (endTime-startTime).seconds)]
+    print(TrackRecord)
+
+    log_file = '{}-{}.log'.format(startTime.year, startTime.month)
+    with open(log_file, 'a') as f:
+        f.write(workingProject + ", "+ str(startTime) + ", " + str(endTime) + ", " + str((endTime-startTime).seconds)+"\n")
+
+
     StopButton.pack_forget()
     CountingLabel.pack_forget()
     for button in ProjectButtons:
@@ -136,6 +146,8 @@ if exists('OTT_projects.txt'):
         for name in ProjectNames:
             addNewProjectButton(name)
     print("projects: ", ProjectNames)
+
+
 
 NewItemButton = tk.Button(m, text='Add New Item', height = SMALL_BUTTTON_HEIGHT, width=15, fg='black', bg='grey', font=tkFont.Font(size=20))
 NewItemButton.bind("<ButtonRelease>", lambda event: release(addNewItem))
