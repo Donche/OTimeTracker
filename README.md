@@ -5,3 +5,5 @@ A simple &amp; open &amp; manual time tracker made wth python, tkinter and some 
 # ToDo:
 - [ ] export results to csv file
 - [ ] save and load projects
+- [ ] show tracking records
+- [ ] more analytical graphs !
