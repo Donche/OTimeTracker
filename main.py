@@ -15,7 +15,7 @@ TrackRecord = {}
 workingProject = ""
 
 BIG_BUTTTON_HEIGHT = 10
-MID_BUTTON_HEIGHT = 5
+MID_BUTTON_HEIGHT = 3
 SMALL_BUTTTON_HEIGHT = 3
 
 
@@ -54,22 +54,22 @@ def getTodayTotal(name):
 
 def addNewProjectButton(name):
     total = getTodayTotal(name)
-    new_button = tk.Button(m, text=name, height = MID_BUTTON_HEIGHT, width=15, font=tkFont.Font(size=20), command= lambda: startWorking(new_button))
-    new_button.pack()
+    new_button = tk.Button(CentralArea, text=name, height = MID_BUTTON_HEIGHT, width=12, font=tkFont.Font(size=20), command= lambda: startWorking(new_button))
+    new_button.grid(row = len(ProjectButtons)*2)
+    l = tk.Label(CentralArea, text="Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
+    l.grid(row = len(ProjectButtons)*2 + 1)
     ProjectButtons.append(new_button)
-    l = tk.Label(m, text="Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
-    l.pack()
     ProjectLabels.append((name, l))
 
 
 def addNewItem():
-    l = tk.Label(m, text="Item Name ")
-    entry = tk.Entry(m)
-    b = tk.Button(m, text='Confirm New Item', height = SMALL_BUTTTON_HEIGHT, width=15, command=lambda: confirmNewItem(entry, [l, entry, b]))
+    l = tk.Label(CentralArea, text="Item Name ")
+    entry = tk.Entry(CentralArea)
+    b = tk.Button(CentralArea, text='Confirm New Item', height = SMALL_BUTTTON_HEIGHT, width=12, command=lambda: confirmNewItem(entry, [l, entry, b]))
     entry.bind("<Return>", lambda event: confirmNewItem(entry, [l, entry, b]))
-    l.pack()
-    entry.pack()
-    b.pack()
+    l.grid(row = len(ProjectButtons)*2)
+    entry.grid(row = len(ProjectButtons)*2 + 1)
+    b.grid(row = len(ProjectButtons)*2 + 2)
 
 def confirmNewItem(entry, destroyList: list):
     newItemName = entry.get()
@@ -98,13 +98,15 @@ def startWorking(button):
     workingProject = button['text']
     startTime= datetime.now()
     tracking = True
-    NewItemButton.pack_forget()
+    NewItemButton.grid_remove()
+    ExitButton.grid_remove()
+    BottomBar.pack_forget()
     for button in ProjectButtons:
-        button.pack_forget()
+        button.grid_remove()
     for label in ProjectLabels:
-        label[1].pack_forget()
-    StopButton.pack()
-    CountingLabel.pack()
+        label[1].grid_remove()
+    StopButton.grid(row = 0)
+    CountingLabel.grid(row = 1)
     CountingLabel.after(1000, updateWorkingTime)
     m.attributes("-alpha", 0.5)
 
@@ -126,22 +128,28 @@ def stopWorking():
         f.write(workingProject + ", "+ str(startTime) + ", " + str(endTime) + ", " + str((endTime-startTime).seconds)+"\n")
 
 
-    StopButton.pack_forget()
-    CountingLabel.pack_forget()
+    StopButton.grid_remove()
+    CountingLabel.grid_remove()
     for index in range(len(ProjectButtons)):
-        ProjectButtons[index].pack()
-        ProjectLabels[index][1].pack()
+        ProjectButtons[index].grid()
+        ProjectLabels[index][1].grid()
     for p in ProjectLabels:
         if p[0] == workingProject:
             total = getTodayTotal(p[0])
             p[1].configure(text = "Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
 
-    NewItemButton.pack(side=tk.BOTTOM)
+    BottomBar.pack()
+    NewItemButton.grid()
+    ExitButton.grid()
     m.attributes("-alpha", 1)
 
 
 m = tk.Tk()
 m.title('Time Tracker')
+CentralArea = Frame()
+CentralArea.pack(side = TOP)
+BottomBar = Frame()
+BottomBar.pack(side = BOTTOM)
 
 log_file = '{}-{}.log'.format(datetime.now().year, datetime.now().month)
 if exists(log_file):
@@ -166,16 +174,19 @@ if exists('OTT_projects.txt'):
 
 
 
-NewItemButton = tk.Button(m, text='Add New Item', height = SMALL_BUTTTON_HEIGHT, width=15, fg='black', bg='grey', font=tkFont.Font(size=20))
+NewItemButton = tk.Button(BottomBar, text='New', height = SMALL_BUTTTON_HEIGHT, width=5, fg='black', bg='grey', font=tkFont.Font(size=20))
+NewItemButton.grid(column=0, row = 0)
 NewItemButton.bind("<ButtonRelease>", lambda event: release(addNewItem))
-NewItemButton.pack(side=tk.BOTTOM)
+ExitButton = tk.Button(BottomBar, text='Exit', height = SMALL_BUTTTON_HEIGHT, width=5, fg='red', bg='grey', font=tkFont.Font(size=20))
+ExitButton.grid(column=1, row = 0)
+ExitButton.bind("<ButtonRelease>", lambda event: release(lambda: exit()))
 
 photo = PhotoImage(file='stop.png')
 photo = photo.subsample(8,8)
 
-StopButton = tk.Button(m, image = photo)
+StopButton = tk.Button(CentralArea, image = photo)
 StopButton.bind("<ButtonRelease>", lambda event: release(stopWorking))
-CountingLabel = tk.Label(m, text="")
+CountingLabel = tk.Label(CentralArea, text="")
 
 m.bind('<Button-1>', click)
 m.bind('<B1-Motion>', drag)
@@ -183,5 +194,3 @@ m.overrideredirect(True)
 m.wm_attributes("-topmost", 1)
 
 m.mainloop()
-
-
