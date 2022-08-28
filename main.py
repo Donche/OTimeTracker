@@ -10,6 +10,7 @@ import csv
 
 ProjectNames = set()
 ProjectButtons = []
+ProjectLabels = []
 TrackRecord = {}
 workingProject = ""
 
@@ -33,8 +34,8 @@ def drag(event):
 
 def click(event):
     global dragging
-    m.offsetx = event.x
-    m.offsety = event.y
+    m.offsetx = m.winfo_pointerx() - m.winfo_rootx()
+    m.offsety = m.winfo_pointery() - m.winfo_rooty()
     dragging = False
 
 def release(f = 0):
@@ -44,10 +45,22 @@ def release(f = 0):
     elif f != 0:
         f()
 
+def getTodayTotal(name):
+    if name in TrackRecord:
+        return sum([i[2] for i in TrackRecord[name]])
+    else:
+        return 0
+
+
 def addNewProjectButton(name):
+    total = getTodayTotal(name)
     new_button = tk.Button(m, text=name, height = MID_BUTTON_HEIGHT, width=15, font=tkFont.Font(size=20), command= lambda: startWorking(new_button))
     new_button.pack()
     ProjectButtons.append(new_button)
+    l = tk.Label(m, text="Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
+    l.pack()
+    ProjectLabels.append((name, l))
+
 
 def addNewItem():
     l = tk.Label(m, text="Item Name ")
@@ -88,6 +101,8 @@ def startWorking(button):
     NewItemButton.pack_forget()
     for button in ProjectButtons:
         button.pack_forget()
+    for label in ProjectLabels:
+        label[1].pack_forget()
     StopButton.pack()
     CountingLabel.pack()
     CountingLabel.after(1000, updateWorkingTime)
@@ -113,23 +128,20 @@ def stopWorking():
 
     StopButton.pack_forget()
     CountingLabel.pack_forget()
-    for button in ProjectButtons:
-        button.pack()
+    for index in range(len(ProjectButtons)):
+        ProjectButtons[index].pack()
+        ProjectLabels[index][1].pack()
+    for p in ProjectLabels:
+        if p[0] == workingProject:
+            total = getTodayTotal(p[0])
+            p[1].configure(text = "Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
+
     NewItemButton.pack(side=tk.BOTTOM)
     m.attributes("-alpha", 1)
 
 
 m = tk.Tk()
 m.title('Time Tracker')
-
-if exists('OTT_projects.txt'):
-    with open('OTT_projects.txt','r') as f:
-        lines = [i.strip() for i in f.readlines()]
-        ProjectNames = set(lines)
-        for name in ProjectNames:
-            addNewProjectButton(name)
-    print("projects: ", ProjectNames)
-
 
 log_file = '{}-{}.log'.format(datetime.now().year, datetime.now().month)
 if exists(log_file):
@@ -141,7 +153,17 @@ if exists(log_file):
             else:
                 TrackRecord[row[0]] = [(row[1], row[2], int(row[3]))]
 
-# print(TrackRecord)
+print(TrackRecord)
+
+if exists('OTT_projects.txt'):
+    with open('OTT_projects.txt','r') as f:
+        lines = [i.strip() for i in f.readlines()]
+        ProjectNames = set(lines)
+        for name in ProjectNames:
+            addNewProjectButton(name)
+    print("projects: ", ProjectNames)
+
+
 
 
 NewItemButton = tk.Button(m, text='Add New Item', height = SMALL_BUTTTON_HEIGHT, width=15, fg='black', bg='grey', font=tkFont.Font(size=20))
