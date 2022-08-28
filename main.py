@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 
 from os.path import exists
+import csv
 
 ProjectNames = set()
 ProjectButtons = []
@@ -48,22 +49,6 @@ def addNewProjectButton(name):
     new_button.pack()
     ProjectButtons.append(new_button)
 
-def timeFormatter(s):
-    hours = 0
-    minutes = 0
-    seconds = 0
-    res = ""
-    if s > 3600:
-        hours = s//3600
-        s = s % 3600
-        res += str(hours) + " h " 
-    if s > 60:
-        minutes = s//60
-        s = s % 60
-        res += str(minutes) + " m " 
-    seconds = int(s)
-    return res + str(seconds) + " s "
-
 def addNewItem():
     l = tk.Label(m, text="Item Name ")
     entry = tk.Entry(m)
@@ -87,8 +72,6 @@ def confirmNewItem(entry, destroyList: list):
 def updateWorkingTime():
     global startTime
     global tracking
-    # print("update time")
-    # CountingLabel.configure(text=str(datetime.now()-startTime))
     t = datetime.now()-startTime
     CountingLabel.configure(text="{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
     if tracking:
@@ -121,7 +104,7 @@ def stopWorking():
         TrackRecord[workingProject].append((str(startTime), str(endTime), (endTime-startTime).seconds))
     else:
         TrackRecord[workingProject] = [(str(startTime), str(endTime), (endTime-startTime).seconds)]
-    print(TrackRecord)
+    # print(TrackRecord)
 
     log_file = '{}-{}.log'.format(startTime.year, startTime.month)
     with open(log_file, 'a') as f:
@@ -147,6 +130,18 @@ if exists('OTT_projects.txt'):
             addNewProjectButton(name)
     print("projects: ", ProjectNames)
 
+
+log_file = '{}-{}.log'.format(datetime.now().year, datetime.now().month)
+if exists(log_file):
+    with open(log_file, 'r') as f:
+        r = csv.reader(f, delimiter=',')
+        for row in r:
+            if row[0] in TrackRecord:
+                TrackRecord[row[0]].append((row[1], row[2], int(row[3])))
+            else:
+                TrackRecord[row[0]] = [(row[1], row[2], int(row[3]))]
+
+# print(TrackRecord)
 
 
 NewItemButton = tk.Button(m, text='Add New Item', height = SMALL_BUTTTON_HEIGHT, width=15, fg='black', bg='grey', font=tkFont.Font(size=20))
