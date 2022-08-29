@@ -86,7 +86,7 @@ def updateWorkingTime():
     global startTime
     global tracking
     t = datetime.now()-startTime
-    CountingLabel.configure(text="{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
+    CountingLabel.configure(text=workingProject+"\n{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
     if tracking:
         CountingLabel.after(1000, updateWorkingTime)
 
@@ -174,10 +174,10 @@ if exists('OTT_projects.txt'):
 
 
 
-NewItemButton = tk.Button(BottomBar, text='New', height = SMALL_BUTTTON_HEIGHT, width=5, fg='black', bg='grey', font=tkFont.Font(size=20))
+NewItemButton = tk.Button(BottomBar, text='New', height = SMALL_BUTTTON_HEIGHT, width=5, fg='black', bg='lightblue', font=tkFont.Font(size=20))
 NewItemButton.grid(column=0, row = 0)
 NewItemButton.bind("<ButtonRelease>", lambda event: release(addNewItem))
-ExitButton = tk.Button(BottomBar, text='Exit', height = SMALL_BUTTTON_HEIGHT, width=5, fg='red', bg='grey', font=tkFont.Font(size=20))
+ExitButton = tk.Button(BottomBar, text='Exit', height = SMALL_BUTTTON_HEIGHT, width=5, fg='red', bg='black', font=tkFont.Font(size=20))
 ExitButton.grid(column=1, row = 0)
 ExitButton.bind("<ButtonRelease>", lambda event: release(lambda: exit()))
 
@@ -190,6 +190,10 @@ CountingLabel = tk.Label(CentralArea, text="")
 
 m.bind('<Button-1>', click)
 m.bind('<B1-Motion>', drag)
+
+# m.bind('<FocusIn>', lambda _: m.attributes("-alpha", 1))
+# m.bind('<FocusOut>', lambda _: m.attributes("-alpha", 0.5))
+
 m.overrideredirect(True)
 m.wm_attributes("-topmost", 1)
 
