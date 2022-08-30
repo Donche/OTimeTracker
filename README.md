@@ -4,6 +4,7 @@ A simple &amp; open &amp; manual time tracker made wth python, tkinter and some 
 
 # ToDo:
 - [ ] archive or delete projects
+- [ ] save records in some other directory
 - [ ] show tracking records
 - [ ] more analytical graphs !
 
