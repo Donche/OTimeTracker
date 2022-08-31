@@ -5,6 +5,8 @@ from datetime import datetime
 from os.path import exists
 import csv
 
+MID_BUTTON_HEIGHT = 3
+SMALL_BUTTON_HEIGHT = 2
 
 class DataControl():
     def __init__(self):
@@ -90,30 +92,27 @@ class MainWindow():
         self.projectArea.pack(side = TOP)
         self.controlArea = Frame()
         self.controlArea.pack(side = BOTTOM)
-        # self.settingArea = Frame()
-        # self.settingArea.pack(side = TOP)
-        # self.settingArea.pack_forget()
 
         # ******** buttons **********
         for name in self.data.projectNames:
             self.addNewProjectButton(name)
 
-        self.newItemButton = tk.Button(self.controlArea, text='New')
+        self.newItemButton = tk.Button(self.controlArea, text='New', height = SMALL_BUTTON_HEIGHT, width=7, fg='black', bg='lightblue', font=tkFont.Font(size=15))
         self.newItemButton.grid(column=0, row = 0)
         self.newItemButton.bind("<ButtonRelease>", lambda event: self.release(self.addNewItem))
 
-        self.exitButton = tk.Button(self.controlArea, text='Exit')
+        self.exitButton = tk.Button(self.controlArea, text='Exit', height = SMALL_BUTTON_HEIGHT, width=7, fg='red', bg='black', font=tkFont.Font(size=15))
         self.exitButton.grid(column=1, row = 0)
         self.exitButton.bind("<ButtonRelease>", lambda event: self.release(exit))
 
-        self.settingButton = tk.Button(self.controlArea, text='Setting')
+        self.settingButton = tk.Button(self.controlArea, text='Setting', height = SMALL_BUTTON_HEIGHT, width=7, fg='black', bg='lightblue', font=tkFont.Font(size=15))
         self.settingButton.grid(column=0, row = 1)
         self.settingButton.bind("<ButtonRelease>", lambda event: self.release(self.openSetting))
 
-        self.returnSettingButton = tk.Button(self.controlArea, text='Return')
+        self.returnSettingButton = tk.Button(self.controlArea, text='Return', height = SMALL_BUTTON_HEIGHT, width=7, fg='black', bg='lightblue', font=tkFont.Font(size=15))
         self.returnSettingButton.bind("<ButtonRelease>", lambda event: self.release(self.closeSetting))
 
-        self.archiveButton = tk.Button(self.controlArea, text='Archive')
+        self.archiveButton = tk.Button(self.controlArea, text='Archive', height = SMALL_BUTTON_HEIGHT, width=7, fg='black', bg='lightblue', font=tkFont.Font(size=15))
         self.archiveButton.grid(column=1, row = 1)
         self.archiveButton.bind("<ButtonRelease>", lambda event: self.release(self.archiveProject))
 
@@ -193,7 +192,7 @@ class MainWindow():
 
     def addNewProjectButton(self, name):
         total = self.data.getTodayTotal(name)
-        new_button = tk.Button(self.projectArea, text=name, command= lambda: self.startWorking(new_button))
+        new_button = tk.Button(self.projectArea, text=name, height = MID_BUTTON_HEIGHT , width=12, font=tkFont.Font(size=20), command= lambda: self.startWorking(new_button))
         new_button.grid(row = len(self.projectButtons)*2)
         l = tk.Label(self.projectArea, text="Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
         l.grid(row = len(self.projectButtons)*2 + 1)
