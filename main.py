@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import font as tkFont
+from tkinter import simpledialog
+from tkinter import messagebox
 from datetime import datetime
 from os.path import exists
 import csv
@@ -12,7 +14,6 @@ SMALL_BUTTON_HEIGHT = 2
 class DataControl():
     def __init__(self):
         self.projectIdNames = {}
-        # self.projectUUID = set()
         self.archivedProjectIdNames = {}
         self.trackRecord = {}
         self.workingProject = ""
@@ -107,6 +108,18 @@ class DataControl():
             for id in self.archivedProjectIdNames:
                 f.write("--"+self.archivedProjectIdNames[id]+", "+str(id)+"\n")
 
+    def renameProject(self, oldName, newName):
+        print('rename ', oldName, " to ", newName)
+        id = self.getIdWithName(oldName)
+        self.projectIdNames[id] = newName
+
+        with open('OTT_projects.txt','w') as f:
+            for id in self.projectIdNames:
+                f.write(self.projectIdNames[id]+", "+str(id)+"\n")
+            for id in self.archivedProjectIdNames:
+                f.write("--"+self.archivedProjectIdNames[id]+", "+str(id)+"\n")
+
+
 
 
 
@@ -123,6 +136,7 @@ class MainWindow():
         self.data = DataControl()
         self.projectButtons = []
         self.archiveButtons = []
+        self.renameButtons = []
         self.projectLabels = []
 
         # ******** Frames **********
@@ -154,6 +168,10 @@ class MainWindow():
         self.archiveButton.grid(column=1, row = 1)
         self.archiveButton.bind("<ButtonRelease>", lambda event: self.release(self.archiveProject))
 
+        self.renameButton = tk.Button(self.controlArea, text='Rename', height = SMALL_BUTTON_HEIGHT, width=7, fg='black', bg='lightblue', font=tkFont.Font(size=15))
+        self.renameButton.grid(column=0, row = 2)
+        self.renameButton.bind("<ButtonRelease>", lambda event: self.release(self.renameProject))
+        
         self.photo = PhotoImage(file='stop.png').subsample(8,8)
         self.stopButton = tk.Button(self.controlArea, image = self.photo)
         self.stopButton.bind("<ButtonRelease>", lambda event: self.release(self.stopWorking))
@@ -186,23 +204,82 @@ class MainWindow():
     def openSetting(self):
         self.newItemButton.grid_remove()
         self.exitButton.grid_remove()
+        self.settingButton.grid_remove()
+        self.archiveButton.grid_remove()
         for button in self.projectButtons:
             button.grid_remove()
         for label in self.projectLabels:
             label[1].grid_remove()
         self.projectArea.pack_forget()
-        self.returnSettingButton.grid(column=0, row = 1)
+        self.returnSettingButton.grid(column=0, row = 0)
         # self.controlArea.pack_forget()
 
     def closeSetting(self):
         self.projectArea.pack()
         self.newItemButton.grid()
         self.exitButton.grid()
+        self.settingButton.grid()
+        self.archiveButton.grid()
         for button in self.projectButtons:
             button.grid()
         for label in self.projectLabels:
             label[1].grid()
         self.returnSettingButton.grid_remove()
+
+
+    # ******** rename project **********
+    def renameProject(self):
+        for i in range(len(self.projectButtons)):
+            self.addRenameProjectButton(self.projectButtons[i]['text'], i)
+        self.renameButton.configure(text="return")
+        self.renameButton.bind("<ButtonRelease>", lambda event: self.release(self.__exitRename))
+
+        self.newItemButton.grid_remove()
+        self.exitButton.grid_remove()
+        self.settingButton.grid_remove()
+        self.archiveButton.grid_remove()
+
+    def addRenameProjectButton(self, name, i):
+        b = tk.Button(self.projectArea, text='Rename', height = MID_BUTTON_HEIGHT, width=5, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__renameProject(i))
+        b.grid(row = i*2, column = 1)
+        self.renameButtons.append(b)
+
+
+    def __renameProject(self, i):
+        newName = simpledialog.askstring(title="new Name",
+                                  prompt="Please enter a new name for project "+ self.projectButtons[i]['text'])
+        if newName == None:
+            self.__exitRename()
+            return
+
+        for j in range(len(self.projectButtons)):
+            if j == i:
+                continue
+            if self.projectLabels[j][0] == newName:
+                messagebox.showwarning(title="Invalid Name", message="Name used by other project")
+                return
+            
+        self.data.renameProject(self.projectButtons[i]['text'], newName)
+        self.projectButtons[i]['text'] = newName
+        self.projectLabels[i] = (newName, self.projectLabels[i][1])
+        self.__exitRename()
+
+               
+    def __exitRename(self):
+        for i in range(len(self.projectButtons)):
+            self.projectButtons[i].grid(row = i*2)
+            self.projectLabels[i][1].grid(row = i*2+1)
+        for i in self.renameButtons:
+            i.destroy()
+        self.renameButtons= []
+ 
+        self.renameButton.configure(text="Rename")
+        self.renameButton.bind("<ButtonRelease>", lambda event: self.release(self.renameProject))
+
+        self.newItemButton.grid()
+        self.exitButton.grid()
+        self.settingButton.grid()
+        self.archiveButton.grid()
 
 
 
@@ -212,23 +289,24 @@ class MainWindow():
             self.addArchiveProjectButton(self.projectButtons[i]['text'], i)
         self.archiveButton.configure(text="return")
         self.archiveButton.bind("<ButtonRelease>", lambda event: self.release(self.__exitArchive))
+        self.newItemButton.grid_remove()
+        self.exitButton.grid_remove()
+        self.settingButton.grid_remove()
+        self.renameButton.grid_remove()
 
     def addArchiveProjectButton(self, name, i):
-        b = tk.Button(self.projectArea, text='Archive', height = MID_BUTTON_HEIGHT, width=5, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__archiveProject(name))
+        b = tk.Button(self.projectArea, text='Archive', height = MID_BUTTON_HEIGHT, width=5, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__archiveProject(i))
         b.grid(row = i*2, column = 1)
         self.archiveButtons.append(b)
 
 
-    def __archiveProject(self, name):
-        for i in range(len(self.projectButtons)):
-            if self.projectButtons[i]['text'] == name:
-                self.projectButtons[i].destroy()
-                del self.projectButtons[i]
-                self.projectLabels[i][1].destroy()
-                del self.projectLabels[i]
-                # self.projectButtons.remove(self.projectButtons[i])
-                self.data.archiveProject(name)
-                break
+    def __archiveProject(self, i):
+        name = self.projectButtons[i]['text']
+        self.data.archiveProject(name)
+        self.projectButtons[i].destroy()
+        del self.projectButtons[i]
+        self.projectLabels[i][1].destroy()
+        del self.projectLabels[i]
         self.__exitArchive()
 
            
@@ -243,6 +321,10 @@ class MainWindow():
         self.archiveButton.configure(text="Archive")
         self.archiveButton.bind("<ButtonRelease>", lambda event: self.release(self.archiveProject))
 
+        self.newItemButton.grid()
+        self.exitButton.grid()
+        self.settingButton.grid()
+        self.renameButton.grid()
 
 
     # ******** add new project **********
@@ -284,6 +366,7 @@ class MainWindow():
         self.exitButton.grid_remove()
         self.settingButton.grid_remove()
         self.archiveButton.grid_remove()
+        self.renameButton.grid_remove()
         # self.controlArea.pack_forget()
         for button in self.projectButtons:
             button.grid_remove()
@@ -317,6 +400,7 @@ class MainWindow():
         self.exitButton.grid()
         self.settingButton.grid()
         self.archiveButton.grid()
+        self.renameButton.grid()
         self.m.attributes("-alpha", 1)
 
     # ******** update time label **********

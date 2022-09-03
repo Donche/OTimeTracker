@@ -1,6 +1,6 @@
 # OTimeTracker
 
-A simple &amp; open &amp; manual time tracker made wth python, tkinter and some Chopin Nocturnes.
+A simple &amp; open &amp; manual time tracker made with python, tkinter and some Chopin Nocturnes.
 
 # ToDo:
 - [ ] rename project
