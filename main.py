@@ -4,27 +4,32 @@ from tkinter import font as tkFont
 from datetime import datetime
 from os.path import exists
 import csv
+import uuid
 
 MID_BUTTON_HEIGHT = 3
 SMALL_BUTTON_HEIGHT = 2
 
 class DataControl():
     def __init__(self):
-        self.projectNames = set()
-        self.archivedProjectNames = set()
+        self.projectIdNames = {}
+        # self.projectUUID = set()
+        self.archivedProjectIdNames = {}
         self.trackRecord = {}
         self.workingProject = ""
+        self.workingId = 0
 
         if exists('OTT_projects.txt'):
             with open('OTT_projects.txt','r') as f:
                 lines = [i.strip() for i in f.readlines()]
                 for l in lines:
                     if l[:2] == "--":
-                        self.archivedProjectNames.add(l[2:])
+                        name, id = l[2:].split(", ")
+                        self.archivedProjectIdNames[uuid.UUID(id.strip())] = name
                     else:
-                        self.projectNames.add(l)
-            print("projects: ", self.projectNames)
-            print("archived projects: ", self.archivedProjectNames)
+                        name, id = l.split(", ")
+                        self.projectIdNames[uuid.UUID(id.strip())] = name
+            print("projects: ", self.projectIdNames)
+            print("archived projects: ", self.archivedProjectIdNames)
 
 
         log_file = '{}-{}.log'.format(datetime.now().year, datetime.now().month)
@@ -32,11 +37,19 @@ class DataControl():
             with open(log_file, 'r') as f:
                 r = csv.reader(f, delimiter=',')
                 for row in r:
-                    if row[0] in self.trackRecord:
-                        self.trackRecord[row[0]].append((row[1], row[2], int(row[3])))
+                    id = uuid.UUID(row[0].strip())
+                    try:
+                        if id in self.projectIdNames:
+                            name = self.projectIdNames[id]
+                        else:
+                            name = self.archivedProjectIdNames[id]
+                    except:
+                        print("project id ", id, " not recognized")
+                        continue
+                    if name in self.trackRecord:
+                        self.trackRecord[name].append((row[1], row[2], int(row[3])))
                     else:
-                        self.trackRecord[row[0]] = [(row[1], row[2], int(row[3]))]
-        print(self.trackRecord)
+                        self.trackRecord[name] = [(row[1], row[2], int(row[3]))]
 
     def getTodayTotal(self, name):
         if name in self.trackRecord:
@@ -45,19 +58,34 @@ class DataControl():
             return 0
 
     def hasProject(self, name):
-        return name in self.projectNames
+        for id in self.projectIdNames:
+            if name == self.projectIdNames[id]:
+                return True
+        return False
+
+    def getIdWithName(self, name):
+        for id in self.projectIdNames:
+            if name == self.projectIdNames[id]:
+                return id
+
 
     def tryAddProject(self, name):
-        if name in self.projectNames:
+        if self.hasProject(name):
             return False
         else:
-            self.projectNames.add(name)
+            id = uuid.uuid1()
+            self.projectIdNames[id] = name
             with open('OTT_projects.txt','a') as f:
-                f.write(name+"\n")
+                f.write(name+", "+str(id)+"\n")
             return True
 
     def startWorking(self, name):
         self.workingProject = name
+        for id in self.projectIdNames:
+            if self.workingProject == self.projectIdNames[id]:
+                self.workingId = id
+                break
+
 
     def stopWorking(self, startTime, endTime):
         if self.workingProject in self.trackRecord:
@@ -66,18 +94,18 @@ class DataControl():
             self.trackRecord[self.workingProject] = [(str(startTime), str(endTime), (endTime-startTime).seconds)]
         log_file = '{}-{}.log'.format(startTime.year, startTime.month)
         with open(log_file, 'a') as f:
-            f.write(self.workingProject + ", "+ str(startTime) + ", " + str(endTime) + ", " + str((endTime-startTime).seconds)+"\n")
+            f.write(str(self.workingId) + ", "+ str(startTime) + ", " + str(endTime) + ", " + str((endTime-startTime).seconds)+"\n")
 
     def archiveProject(self, name):
         print('archive ', name)
-        self.archivedProjectNames.add(name)
-        self.projectNames.remove(name)
+        id = self.getIdWithName(name)
+        self.archivedProjectIdNames[id] = self.projectIdNames.pop(id, None)
 
         with open('OTT_projects.txt','w') as f:
-            for n in self.projectNames:
-                f.write(n+"\n")
-            for n in self.archivedProjectNames:
-                f.write("--"+n+"\n")
+            for id in self.projectIdNames:
+                f.write(self.projectIdNames[id]+", "+str(id)+"\n")
+            for id in self.archivedProjectIdNames:
+                f.write("--"+self.archivedProjectIdNames[id]+", "+str(id)+"\n")
 
 
 
@@ -104,8 +132,8 @@ class MainWindow():
         self.controlArea.pack(side = BOTTOM)
 
         # ******** buttons **********
-        for name in self.data.projectNames:
-            self.addNewProjectButton(name)
+        for id in self.data.projectIdNames:
+            self.addNewProjectButton(self.data.projectIdNames[id])
 
         self.newItemButton = tk.Button(self.controlArea, text='New', height = SMALL_BUTTON_HEIGHT, width=7, fg='black', bg='lightblue', font=tkFont.Font(size=15))
         self.newItemButton.grid(column=0, row = 0)
@@ -186,7 +214,7 @@ class MainWindow():
         self.archiveButton.bind("<ButtonRelease>", lambda event: self.release(self.__exitArchive))
 
     def addArchiveProjectButton(self, name, i):
-        b = tk.Button(self.projectArea, text='Archive', fg = 'blue',  command=lambda: self.__archiveProject(name))
+        b = tk.Button(self.projectArea, text='Archive', height = MID_BUTTON_HEIGHT, width=5, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__archiveProject(name))
         b.grid(row = i*2, column = 1)
         self.archiveButtons.append(b)
 
@@ -219,10 +247,10 @@ class MainWindow():
 
     # ******** add new project **********
     def addNewItem(self):
-        l = tk.Label(self.controlArea, text="Item Name ")
-        entry = tk.Entry(self.controlArea)
+        l = tk.Label(self.projectArea, text="Item Name ")
+        entry = tk.Entry(self.projectArea)
         entry.bind("<Return>", lambda event: self.confirmNewItem(entry, [l, entry, b]))
-        b = tk.Button(self.controlArea, text='Confirm New Item', command=lambda: self.confirmNewItem(entry, [l, entry, b]))
+        b = tk.Button(self.projectArea, text='Confirm New Item', command=lambda: self.confirmNewItem(entry, [l, entry, b]))
         l.grid(row = len(self.projectButtons)*2)
         entry.grid(row = len(self.projectButtons)*2 + 1)
         b.grid(row = len(self.projectButtons)*2 + 2)
