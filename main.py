@@ -69,7 +69,16 @@ class DataControl():
             f.write(self.workingProject + ", "+ str(startTime) + ", " + str(endTime) + ", " + str((endTime-startTime).seconds)+"\n")
 
     def archiveProject(self, name):
-        pass
+        print('archive ', name)
+        self.archivedProjectNames.add(name)
+        self.projectNames.remove(name)
+
+        with open('OTT_projects.txt','w') as f:
+            for n in self.projectNames:
+                f.write(n+"\n")
+            for n in self.archivedProjectNames:
+                f.write("--"+n+"\n")
+
 
 
 
@@ -85,6 +94,7 @@ class MainWindow():
         # ******** data **********
         self.data = DataControl()
         self.projectButtons = []
+        self.archiveButtons = []
         self.projectLabels = []
 
         # ******** Frames **********
@@ -166,8 +176,44 @@ class MainWindow():
             label[1].grid()
         self.returnSettingButton.grid_remove()
 
+
+
+    # ******** archive project **********
     def archiveProject(self):
-        pass
+        for i in range(len(self.projectButtons)):
+            self.addArchiveProjectButton(self.projectButtons[i]['text'], i)
+        self.archiveButton.configure(text="return")
+        self.archiveButton.bind("<ButtonRelease>", lambda event: self.release(self.__exitArchive))
+
+    def addArchiveProjectButton(self, name, i):
+        b = tk.Button(self.projectArea, text='Archive', fg = 'blue',  command=lambda: self.__archiveProject(name))
+        b.grid(row = i*2, column = 1)
+        self.archiveButtons.append(b)
+
+
+    def __archiveProject(self, name):
+        for i in range(len(self.projectButtons)):
+            if self.projectButtons[i]['text'] == name:
+                self.projectButtons[i].destroy()
+                del self.projectButtons[i]
+                self.projectLabels[i][1].destroy()
+                del self.projectLabels[i]
+                # self.projectButtons.remove(self.projectButtons[i])
+                self.data.archiveProject(name)
+                break
+        self.__exitArchive()
+
+           
+    def __exitArchive(self):
+        for i in range(len(self.projectButtons)):
+            self.projectButtons[i].grid(row = i*2)
+            self.projectLabels[i][1].grid(row = i*2+1)
+        for i in self.archiveButtons:
+            i.destroy()
+        self.archiveButtons = []
+ 
+        self.archiveButton.configure(text="Archive")
+        self.archiveButton.bind("<ButtonRelease>", lambda event: self.release(self.archiveProject))
 
 
 
