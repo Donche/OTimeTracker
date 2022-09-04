@@ -4,7 +4,6 @@ import platform
 from tkinter import ttk
 if platform.system() == "Darwin":
     from tkmacosx import Button
-    # from tkmacosx import Label
     MID_BUTTON_HEIGHT = 70
     SMALL_BUTTON_HEIGHT = 50
     SMOL_BUTTON_WIDTH = 70
@@ -12,10 +11,11 @@ if platform.system() == "Darwin":
     WID_BUTTON_WIDTH = 200
 else:
     from tkinter import Button
-    # from tkmacosx import Label
     MID_BUTTON_HEIGHT = 3
     SMALL_BUTTON_HEIGHT = 2
+    SMOL_BUTTON_WIDTH = 5
     BUTTON_WIDTH = 7
+    WID_BUTTON_WIDTH = 9
 
 from tkinter import font as tkFont
 from tkinter import simpledialog
@@ -199,7 +199,7 @@ class MainWindow():
 
 
         self.photo = PhotoImage(file='stop.png').subsample(8,8)
-        self.stopButton = Button(self.controlArea, image = self.photo, width=SMOL_BUTTON_WIDTH, command=lambda: self.release(self.stopWorking))
+        self.stopButton = Button(self.controlArea, image = self.photo, command=lambda: self.release(self.stopWorking))
         self.countingLabel = Label(self.controlArea, text="")
 
         # ******** variables **********
