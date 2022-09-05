@@ -3,9 +3,10 @@
 A simple &amp; open &amp; manual time tracker made with python, tkinter and some Chopin Nocturnes.
 
 # ToDo:
-- [ ] save records in some other directory
+- [ ] record path
 - [ ] show tracking records
-- [ ] more analytical graphs !
+- [ ] history data analysis
+- [ ] some beautiful graphs
 
 # Done:
 - [x] export results to csv file
