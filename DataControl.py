@@ -45,23 +45,18 @@ class DataControl():
                     else:
                         self.trackRecord[name] = [(row[1], row[2], int(row[3]))]
 
-    def getTodayTotal(self, name):
-        if name in self.trackRecord:
-            return sum([i[2] for i in self.trackRecord[name]])
-        else:
-            return 0
+
+    # ******** project **********
+    def __getIdWithName(self, name):
+        for id in self.projectIdNames:
+            if name == self.projectIdNames[id]:
+                return id
 
     def hasProject(self, name):
         for id in self.projectIdNames:
             if name == self.projectIdNames[id]:
                 return True
         return False
-
-    def getIdWithName(self, name):
-        for id in self.projectIdNames:
-            if name == self.projectIdNames[id]:
-                return id
-
 
     def tryAddProject(self, name):
         if self.hasProject(name):
@@ -72,6 +67,37 @@ class DataControl():
             with open('OTT_projects.txt','a') as f:
                 f.write(name+", "+str(id)+"\n")
             return True
+
+    def archiveProject(self, name):
+        print('archive ', name)
+        id = self.__getIdWithName(name)
+        self.archivedProjectIdNames[id] = self.projectIdNames.pop(id, None)
+
+        with open('OTT_projects.txt','w') as f:
+            for id in self.projectIdNames:
+                f.write(self.projectIdNames[id]+", "+str(id)+"\n")
+            for id in self.archivedProjectIdNames:
+                f.write("--"+self.archivedProjectIdNames[id]+", "+str(id)+"\n")
+
+    def renameProject(self, oldName, newName):
+        print('rename ', oldName, " to ", newName)
+        id = self.__getIdWithName(oldName)
+        self.projectIdNames[id] = newName
+
+        with open('OTT_projects.txt','w') as f:
+            for id in self.projectIdNames:
+                f.write(self.projectIdNames[id]+", "+str(id)+"\n")
+            for id in self.archivedProjectIdNames:
+                f.write("--"+self.archivedProjectIdNames[id]+", "+str(id)+"\n")
+
+
+    # ******** times **********
+    def getTodayTotal(self, name):
+        if name in self.trackRecord:
+            return sum([i[2] for i in self.trackRecord[name]])
+        else:
+            return 0
+
 
     def startWorking(self, name):
         self.workingProject = name
@@ -95,27 +121,6 @@ class DataControl():
         with open(log_file, 'a') as f:
             f.write(str(self.workingId) + ", "+ str(self.startTime) + ", " + str(endTime) + ", " + str((endTime-self.startTime).seconds)+"\n")
 
-    def archiveProject(self, name):
-        print('archive ', name)
-        id = self.getIdWithName(name)
-        self.archivedProjectIdNames[id] = self.projectIdNames.pop(id, None)
-
-        with open('OTT_projects.txt','w') as f:
-            for id in self.projectIdNames:
-                f.write(self.projectIdNames[id]+", "+str(id)+"\n")
-            for id in self.archivedProjectIdNames:
-                f.write("--"+self.archivedProjectIdNames[id]+", "+str(id)+"\n")
-
-    def renameProject(self, oldName, newName):
-        print('rename ', oldName, " to ", newName)
-        id = self.getIdWithName(oldName)
-        self.projectIdNames[id] = newName
-
-        with open('OTT_projects.txt','w') as f:
-            for id in self.projectIdNames:
-                f.write(self.projectIdNames[id]+", "+str(id)+"\n")
-            for id in self.archivedProjectIdNames:
-                f.write("--"+self.archivedProjectIdNames[id]+", "+str(id)+"\n")
 
 
 
