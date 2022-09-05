@@ -35,58 +35,58 @@ class MainWindow():
 
         # ******** data **********
         self.data = DataControl()
-        self.projectButtons = []
-        self.archiveButtons = []
-        self.renameButtons = []
-        self.projectLabels = []
+        self.project_buttons = []
+        self.archive_buttons = []
+        self.rename_buttons = []
+        self.project_labels = []
 
         # ******** Frames **********
-        self.projectArea = Frame()
-        self.projectArea.pack(side = TOP)
-        self.controlArea = Frame()
-        self.controlArea.pack(side = BOTTOM)
+        self.project_area = Frame()
+        self.project_area.pack(side = TOP)
+        self.control_area = Frame()
+        self.control_area.pack(side = BOTTOM)
 
         # ******** buttons **********
-        for id in self.data.projectIdNames:
-            self.addNewProjectButton(self.data.projectIdNames[id])
+        for id in self.data.project_id_names:
+            self.add_new_project_button(self.data.project_id_names[id])
 
-        self.newItemButton= Button(self.controlArea, text='New', width = BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, fg='black', bg='lightblue')
-        self.newItemButton.configure(command=lambda: self.release(self.addNewItem))
-        self.newItemButton.grid(column=0, row = 0)
+        self.new_item_button= Button(self.control_area, text='New', width = BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, fg='black', bg='lightblue')
+        self.new_item_button.configure(command=lambda: self.release(self.add_new_item))
+        self.new_item_button.grid(column=0, row = 0)
 
-        self.statsButton = Button(self.controlArea, text='Stats', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.statsButton.configure(command=lambda: self.release(self.openSetting))
-        self.statsButton.grid(column=1, row = 0)
+        self.stats_button = Button(self.control_area, text='Stats', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
+        self.stats_button.configure(command=lambda: self.release(self.open_setting))
+        self.stats_button.grid(column=1, row = 0)
 
-        self.renameButton = Button(self.controlArea, text='Rename', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.renameButton.configure(command=lambda: self.release(self.renameProject))
-        self.renameButton.grid(column=0, row = 1)
+        self.rename_button = Button(self.control_area, text='Rename', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
+        self.rename_button.configure(command=lambda: self.release(self.rename_project))
+        self.rename_button.grid(column=0, row = 1)
 
-        self.returnRenameButton = Button(self.controlArea, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.returnRenameButton.configure(command=lambda: self.release(self.__exitRename))
+        self.return_rename_button = Button(self.control_area, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
+        self.return_rename_button.configure(command=lambda: self.release(self.__exit_rename))
 
-        self.archiveButton = Button(self.controlArea, text='Archive', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.archiveButton.configure(command=lambda: self.release(self.archiveProject))
-        self.archiveButton.grid(column=1, row = 1)
+        self.archive_button = Button(self.control_area, text='Archive', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
+        self.archive_button.configure(command=lambda: self.release(self.archive_project))
+        self.archive_button.grid(column=1, row = 1)
 
-        self.returnArchiveButton = Button(self.controlArea, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.returnArchiveButton.configure(command=lambda: self.release(self.__exitArchive))
+        self.return_archive_button = Button(self.control_area, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
+        self.return_archive_button.configure(command=lambda: self.release(self.__exit_archive))
 
-        self.settingButton = Button(self.controlArea, text='Setting', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.settingButton.configure(command=lambda: self.release(self.openSetting))
-        self.settingButton.grid(column=0, row = 2)
+        self.setting_button = Button(self.control_area, text='Setting', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
+        self.setting_button.configure(command=lambda: self.release(self.open_setting))
+        self.setting_button.grid(column=0, row = 2)
         
-        self.returnSettingButton = Button(self.controlArea, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.returnSettingButton.configure(command=lambda: self.release(self.closeSetting))
+        self.return_setting_button = Button(self.control_area, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
+        self.return_setting_button.configure(command=lambda: self.release(self.close_setting))
 
-        self.exitButton = Button(self.controlArea, text='Exit', width=BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, fg='black', bg='red')
-        self.exitButton.configure(command=lambda: self.release(exit))
-        self.exitButton.grid(column=1, row = 2)
+        self.exit_button = Button(self.control_area, text='Exit', width=BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, fg='black', bg='red')
+        self.exit_button.configure(command=lambda: self.release(exit))
+        self.exit_button.grid(column=1, row = 2)
 
 
         self.photo = PhotoImage(file='stop.png').subsample(8,8)
-        self.stopButton = Button(self.controlArea, image = self.photo, command=lambda: self.release(self.stopWorking))
-        self.countingLabel = Label(self.controlArea, text="")
+        self.stop_button = Button(self.control_area, image = self.photo, command=lambda: self.release(self.stop_working))
+        self.counting_label = Label(self.control_area, text="")
 
         # ******** variables **********
         self.dragging = False
@@ -111,191 +111,191 @@ class MainWindow():
         elif f != 0:
             f()
 
-    def hideAllControlButtons(self):
-        self.newItemButton.grid_remove()
-        self.exitButton.grid_remove()
-        self.settingButton.grid_remove()
-        self.renameButton.grid_remove()
-        self.archiveButton.grid_remove()
-        self.statsButton.grid_remove()
+    def hide_all_control_buttons(self):
+        self.new_item_button.grid_remove()
+        self.exit_button.grid_remove()
+        self.setting_button.grid_remove()
+        self.rename_button.grid_remove()
+        self.archive_button.grid_remove()
+        self.stats_button.grid_remove()
 
 
-    def showAllControlButtons(self):
-        self.newItemButton.grid()
-        self.renameButton.grid()
-        self.exitButton.grid()
-        self.settingButton.grid()
-        self.archiveButton.grid()
-        self.statsButton.grid()
+    def show_all_control_buttons(self):
+        self.new_item_button.grid()
+        self.rename_button.grid()
+        self.exit_button.grid()
+        self.setting_button.grid()
+        self.archive_button.grid()
+        self.stats_button.grid()
 
 
 
 
     # ******** rename project **********
-    def openSetting(self):
-        self.hideAllControlButtons()
-        for button in self.projectButtons:
+    def open_setting(self):
+        self.hide_all_control_buttons()
+        for button in self.project_buttons:
             button.grid_remove()
-        for label in self.projectLabels:
+        for label in self.project_labels:
             label[1].grid_remove()
-        self.projectArea.pack_forget()
-        self.returnSettingButton.grid(column=0, row = 0)
+        self.project_area.pack_forget()
+        self.return_setting_button.grid(column=0, row = 0)
 
-    def closeSetting(self):
-        self.projectArea.pack()
-        self.showAllControlButtons()
-        for button in self.projectButtons:
+    def close_setting(self):
+        self.project_area.pack()
+        self.show_all_control_buttons()
+        for button in self.project_buttons:
             button.grid()
-        for label in self.projectLabels:
+        for label in self.project_labels:
             label[1].grid()
-        self.returnSettingButton.grid_remove()
+        self.return_setting_button.grid_remove()
 
 
     # ******** rename project **********
-    def renameProject(self):
-        for i in range(len(self.projectButtons)):
-            self.addRenameProjectButton(self.projectButtons[i]['text'], i)
-        self.hideAllControlButtons()
-        self.returnRenameButton.grid(row = 0, column = 0)
+    def rename_project(self):
+        for i in range(len(self.project_buttons)):
+            self.addRenameProjectButton(self.project_buttons[i]['text'], i)
+        self.hide_all_control_buttons()
+        self.return_rename_button.grid(row = 0, column = 0)
 
     def addRenameProjectButton(self, name, i):
-        b = Button(self.projectArea, text='Rename', height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__renameProject(i))
+        b = Button(self.project_area, text='Rename', height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__rename_project(i))
         b.grid(row = i*2, column = 1)
-        self.renameButtons.append(b)
+        self.rename_buttons.append(b)
 
 
-    def __renameProject(self, i):
-        newName = simpledialog.askstring(title="new Name",
-                                  prompt="Please enter a new name for project "+ self.projectButtons[i]['text'])
-        if newName == None or newName.strip() == "":
-            self.__exitRename()
+    def __rename_project(self, i):
+        new_name = simpledialog.askstring(title="new Name",
+                                  prompt="Please enter a new name for project "+ self.project_buttons[i]['text'])
+        if new_name == None or new_name.strip() == "":
+            self.__exit_rename()
             return
-        newName = newName.strip()
+        new_name = new_name.strip()
 
-        for j in range(len(self.projectButtons)):
+        for j in range(len(self.project_buttons)):
             if j == i:
                 continue
-            if self.projectLabels[j][0] == newName:
+            if self.project_labels[j][0] == new_name:
                 messagebox.showwarning(title="Invalid Name", message="Name used by other project")
                 return
             
-        self.data.renameProject(self.projectButtons[i]['text'], newName)
-        self.projectButtons[i]['text'] = newName
-        self.projectLabels[i] = (newName, self.projectLabels[i][1])
-        self.__exitRename()
+        self.data.rename_project(self.project_buttons[i]['text'], new_name)
+        self.project_buttons[i]['text'] = new_name
+        self.project_labels[i] = (new_name, self.project_labels[i][1])
+        self.__exit_rename()
 
                
-    def __exitRename(self):
-        for i in range(len(self.projectButtons)):
-            self.projectButtons[i].grid(row = i*2)
-            self.projectLabels[i][1].grid(row = i*2+1)
-        for i in self.renameButtons:
+    def __exit_rename(self):
+        for i in range(len(self.project_buttons)):
+            self.project_buttons[i].grid(row = i*2)
+            self.project_labels[i][1].grid(row = i*2+1)
+        for i in self.rename_buttons:
             i.destroy()
-        self.renameButtons= []
+        self.rename_buttons= []
  
-        self.returnRenameButton.grid_remove()
-        self.showAllControlButtons()
+        self.return_rename_button.grid_remove()
+        self.show_all_control_buttons()
 
 
     # ******** archive project **********
-    def archiveProject(self):
-        for i in range(len(self.projectButtons)):
-            self.addArchiveProjectButton(self.projectButtons[i]['text'], i)
-        self.hideAllControlButtons()
-        self.returnArchiveButton.grid(row = 0, column = 0)
+    def archive_project(self):
+        for i in range(len(self.project_buttons)):
+            self.add_archive_project_button(self.project_buttons[i]['text'], i)
+        self.hide_all_control_buttons()
+        self.return_archive_button.grid(row = 0, column = 0)
 
-    def addArchiveProjectButton(self, name, i):
-        b = Button(self.projectArea, text='Archive', height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__archiveProject(i))
+    def add_archive_project_button(self, name, i):
+        b = Button(self.project_area, text='Archive', height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__archive_project(i))
         b.grid(row = i*2, column = 1)
-        self.archiveButtons.append(b)
+        self.archive_buttons.append(b)
 
 
-    def __archiveProject(self, i):
-        name = self.projectButtons[i]['text']
-        self.data.archiveProject(name)
-        self.projectButtons[i].destroy()
-        del self.projectButtons[i]
-        self.projectLabels[i][1].destroy()
-        del self.projectLabels[i]
-        self.__exitArchive()
+    def __archive_project(self, i):
+        name = self.project_buttons[i]['text']
+        self.data.archive_project(name)
+        self.project_buttons[i].destroy()
+        del self.project_buttons[i]
+        self.project_labels[i][1].destroy()
+        del self.project_labels[i]
+        self.__exit_archive()
 
            
-    def __exitArchive(self):
-        for i in range(len(self.projectButtons)):
-            self.projectButtons[i].grid(row = i*2)
-            self.projectLabels[i][1].grid(row = i*2+1)
-        for i in self.archiveButtons:
+    def __exit_archive(self):
+        for i in range(len(self.project_buttons)):
+            self.project_buttons[i].grid(row = i*2)
+            self.project_labels[i][1].grid(row = i*2+1)
+        for i in self.archive_buttons:
             i.destroy()
-        self.archiveButtons = []
+        self.archive_buttons = []
  
-        self.returnArchiveButton.grid_remove()
-        self.showAllControlButtons()
+        self.return_archive_button.grid_remove()
+        self.show_all_control_buttons()
 
 
     # ******** add new project **********
-    def addNewItem(self):
+    def add_new_item(self):
 
-        newName = simpledialog.askstring(title="new Project",
+        new_name = simpledialog.askstring(title="new Project",
                                   prompt="Please enter a name for the project ")
-        if newName == None or newName == "":
+        if new_name == None or new_name == "":
             return
-        newName = newName.strip()
+        new_name = new_name.strip()
 
-        if self.data.tryAddProject(newName):
-            self.addNewProjectButton(newName)
+        if self.data.try_add_project(new_name):
+            self.add_new_project_button(new_name)
 
-    def addNewProjectButton(self, name):
-        total = self.data.getTodayTotal(name)
-        new_button = Button(self.projectArea, text=name, height = MID_BUTTON_HEIGHT , width=WID_BUTTON_WIDTH, font=tkFont.Font(size=20), command= lambda: self.startWorking(new_button))
-        new_button.grid(row = len(self.projectButtons)*2)
-        l = Label(self.projectArea, text="Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
-        l.grid(row = len(self.projectButtons)*2 + 1)
-        self.projectButtons.append(new_button)
-        self.projectLabels.append((name, l))
+    def add_new_project_button(self, name):
+        total = self.data.get_today_total(name)
+        new_button = Button(self.project_area, text=name, height = MID_BUTTON_HEIGHT , width=WID_BUTTON_WIDTH, font=tkFont.Font(size=20), command= lambda: self.start_working(new_button))
+        new_button.grid(row = len(self.project_buttons)*2)
+        l = Label(self.project_area, text="Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
+        l.grid(row = len(self.project_buttons)*2 + 1)
+        self.project_buttons.append(new_button)
+        self.project_labels.append((name, l))
 
     # ******** begin and stop **********
-    def startWorking(self, button):
-        self.data.startWorking(button['text'])
+    def start_working(self, button):
+        self.data.start_working(button['text'])
         self.tracking = True
 
-        self.hideAllControlButtons()
-        self.projectArea.pack_forget()
-        for button in self.projectButtons:
+        self.hide_all_control_buttons()
+        self.project_area.pack_forget()
+        for button in self.project_buttons:
             button.grid_remove()
-        for label in self.projectLabels:
+        for label in self.project_labels:
             label[1].grid_remove()
 
-        self.stopButton.grid(row = 0)
-        self.countingLabel.grid(row = 1)
-        self.updateWorkingTime()
-        self.countingLabel.after(1000, self.updateWorkingTime)
+        self.stop_button.grid(row = 0)
+        self.counting_label.grid(row = 1)
+        self.update_working_time()
+        self.counting_label.after(1000, self.update_working_time)
         self.m.attributes("-alpha", 0.5)
 
-    def stopWorking(self):
+    def stop_working(self):
         self.tracking = False
 
-        self.data.stopWorking()
+        self.data.stop_working()
 
-        self.projectArea.pack()
-        self.stopButton.grid_remove()
-        self.countingLabel.grid_remove()
-        for index in range(len(self.projectButtons)):
-            self.projectButtons[index].grid()
-            self.projectLabels[index][1].grid()
-        for p in self.projectLabels:
-            if p[0] == self.data.workingProject:
-                total = self.data.getTodayTotal(p[0])
+        self.project_area.pack()
+        self.stop_button.grid_remove()
+        self.counting_label.grid_remove()
+        for index in range(len(self.project_buttons)):
+            self.project_buttons[index].grid()
+            self.project_labels[index][1].grid()
+        for p in self.project_labels:
+            if p[0] == self.data.working_project:
+                total = self.data.get_today_total(p[0])
                 p[1].configure(text = "Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
 
-        self.showAllControlButtons()
+        self.show_all_control_buttons()
         self.m.attributes("-alpha", 1)
 
     # ******** update time label **********
-    def updateWorkingTime(self):
-        t = self.data.getWorkingTime()
-        self.countingLabel.configure(text=self.data.workingProject+"\n{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
+    def update_working_time(self):
+        t = self.data.get_working_time()
+        self.counting_label.configure(text=self.data.working_project+"\n{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
         if self.tracking:
-            self.countingLabel.after(1000, self.updateWorkingTime)
+            self.counting_label.after(1000, self.update_working_time)
 
 
 
