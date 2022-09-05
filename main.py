@@ -47,8 +47,8 @@ class MainWindow():
         self.control_area.pack(side = BOTTOM)
 
         # ******** buttons **********
-        for id in self.data.project_id_names:
-            self.add_new_project_button(self.data.project_id_names[id])
+        for id in self.data.data.project_id_names:
+            self.add_new_project_button(self.data.data.project_id_names[id])
 
         self.new_item_button= Button(self.control_area, text='New', width = BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, fg='black', bg='lightblue')
         self.new_item_button.configure(command=lambda: self.release(self.add_new_item))
