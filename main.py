@@ -165,8 +165,8 @@ class MainWindow():
 
 
     def __rename_project(self, i):
-        new_name = simpledialog.askstring(title="new Name",
-                                  prompt="Please enter a new name for project "+ self.project_buttons[i]['text'])
+        new_name = simpledialog.askstring(title="new Name", 
+                prompt="Please enter a new name for project "+ self.project_buttons[i]['text'])
         if new_name == None or new_name.strip() == "":
             self.__exit_rename()
             return
@@ -245,10 +245,14 @@ class MainWindow():
             self.add_new_project_button(new_name)
 
     def add_new_project_button(self, name):
-        total = self.data.get_today_total(name)
+        today_total = self.data.get_today_total(name)
+        total = self.data.get_total(name)
         new_button = Button(self.project_area, text=name, height = MID_BUTTON_HEIGHT , width=WID_BUTTON_WIDTH, font=tkFont.Font(size=20), command= lambda: self.start_working(new_button))
         new_button.grid(row = len(self.project_buttons)*2)
-        l = Label(self.project_area, text="Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
+        l = Label(self.project_area, text="Today Total: {:02}:{:02}:{:02}\n"\
+                "Total: {:02}:{:02}:{:02}"
+                .format(today_total//3600, today_total%3600//60, today_total%60, 
+                total//3600, total%3600//60, total%60))
         l.grid(row = len(self.project_buttons)*2 + 1)
         self.project_buttons.append(new_button)
         self.project_labels.append((name, l))
@@ -284,8 +288,12 @@ class MainWindow():
             self.project_labels[index][1].grid()
         for p in self.project_labels:
             if p[0] == self.data.working_project:
-                total = self.data.get_today_total(p[0])
-                p[1].configure(text = "Today Total: {:02}:{:02}:{:02}".format(total//3600, total%3600//60, total%60))
+                today_total = self.data.get_today_total(p[0])
+                total = self.data.get_total(p[0])
+                p[1].configure(text = "Today Total: {:02}:{:02}:{:02}\n"\
+                    "Total: {:02}:{:02}:{:02}"
+                    .format(today_total//3600, today_total%3600//60, today_total%60, 
+                    total//3600, total%3600//60, total%60))
 
         self.show_all_control_buttons()
         self.m.attributes("-alpha", 1)
@@ -293,7 +301,8 @@ class MainWindow():
     # ******** update time label **********
     def update_working_time(self):
         t = self.data.get_working_time()
-        self.counting_label.configure(text=self.data.working_project+"\n{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
+        self.counting_label.configure(text=self.data.working_project+
+            "\n{:02}:{:02}:{:02}".format(t.seconds//3600, t.seconds%3600//60, t.seconds%60))
         if self.tracking:
             self.counting_label.after(1000, self.update_working_time)
 

@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from TrackData import TrackData
 
 class DataControl():
@@ -27,9 +26,15 @@ class DataControl():
 
 
     # ******** times **********
+    def get_total(self, name):
+        if name in self.data.record_projects():
+            return self.data.total_duration(name)
+        else:
+            return 0
+
     def get_today_total(self, name):
-        if name in self.data.track_record:
-            return sum([i[2] for i in self.data.track_record[name]])
+        if name in self.data.record_projects():
+            return self.data.total_duration_at_day(name, datetime.now())
         else:
             return 0
 
