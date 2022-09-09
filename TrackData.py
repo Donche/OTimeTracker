@@ -110,10 +110,11 @@ class TrackData():
     def record_projects(self):
         return self.track_records_group.groups.keys()
 
-
-
     def total_duration_at_day(self, name, day):
-        return self.track_records_group.get_group(name).loc[str(day.date())]['duration'].sum()
+        if str(day.date()) in self.track_records.index:
+            return self.track_records_group.get_group(name).loc[str(day.date())]['duration'].sum()
+        else:
+            return 0
 
     def total_duration(self, name):
         return self.track_records_group.get_group(name)['duration'].sum()
