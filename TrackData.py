@@ -1,6 +1,5 @@
-from hashlib import new
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime
 from os.path import exists
 import uuid
 import csv
@@ -112,13 +111,13 @@ class TrackData():
         return self.track_records_group.groups.keys()
 
     def proj_duration_at_day(self, name, day):
-        if str(day.date()) in self.track_records.index:
+        if str(day.date()) in self.track_records_group.get_group(name).index:
             return self.track_records_group.get_group(name).loc[str(day.date())]['duration'].sum()
         else:
             return 0
 
     def total_duration_at_day(self, day, name):
-        if str(day.date()) in self.track_records.index:
+        if str(day.date()) in self.track_records_group.get_group(name).index:
             return self.track_records_group.get_group(name).loc[str(day.date())]['duration'].sum()
         else:
             return 0

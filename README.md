@@ -3,8 +3,8 @@
 A simple &amp; open &amp; manual time tracker made with python, tkinter and some Chopin Nocturnes.
 
 # ToDo:
-- [ ] record path
 - [ ] show tracking records
+- [ ] change record directory
 - [ ] history data analysis
 - [ ] some beautiful graphs
 

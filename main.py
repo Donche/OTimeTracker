@@ -2,8 +2,6 @@ import tkinter as tk
 from tkinter import *
 import platform
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 if platform.system() == "Darwin":
@@ -65,10 +63,20 @@ class MainWindow():
         self.stats_button = Button(self.control_area, text='Stats', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
         self.stats_button.configure(command=lambda: self.release(self.show_fig))
         self.stats_button.grid(column=1, row = 0)
-        self.fig = plt.Figure(figsize=(14,3), dpi=100)
+
+        self.fig = plt.Figure(dpi=150)
         self.fig.set_tight_layout({"pad": 1.0})
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.stats_area)
 
+        self.radioButtons = []
+        self.radioButtonChoice = IntVar(value=0)
+        self.Choices = [('HeatMap', 0), ('Todo', 1), ('Todo', 2)]
+        button_color = ('palegreen', 'mistyrose', 'lavender')
+        for c, v in self.Choices:
+            tk.Radiobutton(self.stats_area, text=c, padx = 20, indicatoron = 0,
+            width = 20, height=3, anchor=CENTER, fg='black', bg=button_color[v],
+            font=tkFont.Font(size=20), variable=self.radioButtonChoice, 
+            value=v).grid(row = 0, column=v,sticky="ew")
 
         # ******** Control Buttons **********
         self.rename_button = Button(self.control_area, text='Rename', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
@@ -260,8 +268,10 @@ class MainWindow():
     def add_new_project_button(self, name):
         today_total = self.data.get_today_total(name)
         total = self.data.get_total(name)
-        new_button = Button(self.project_area, text=name, height = MID_BUTTON_HEIGHT , width=WID_BUTTON_WIDTH, font=tkFont.Font(size=20), command= lambda: self.start_working(new_button))
-        new_button.grid(row = len(self.project_buttons)*2)
+        new_button = Button(self.project_area, text=name, 
+                height = MID_BUTTON_HEIGHT , width=WID_BUTTON_WIDTH, 
+                font=tkFont.Font(size=20), command= lambda: self.start_working(new_button))
+        new_button.grid(row = len(self.project_buttons)*2, sticky="n")
         l = Label(self.project_area, text="Today Total: {:02}:{:02}:{:02}\n"\
                 "Total: {:02}:{:02}:{:02}"
                 .format(today_total//3600, today_total%3600//60, today_total%60, 
@@ -327,13 +337,16 @@ class MainWindow():
     def show_fig(self):
         if self.stats_button['text'] != 'Stats':
             self.stats_area.grid_remove()
-            self.stats_button.configure(text="Stats")
+            self.stats_button.configure(text="Stats", bg='lightblue')
+            for ax in self.axes:
+                ax.remove()
             return
         
-        self.data.all_proj_heatmap(self.fig)
-        self.stats_button.configure(text="hide stats")
+        self.axes = self.data.all_proj_heatmap(self.fig)
+        self.stats_button.configure(text="hide stats", bg='pink')
         self.canvas.draw()
-        self.canvas.get_tk_widget().pack()
+        self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
+        # self.canvas.get_tk_widget().pack()
         self.stats_area.grid()
 
 

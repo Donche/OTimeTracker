@@ -1,6 +1,5 @@
 from datetime import datetime
 from TrackData import TrackData
-import seaborn as sns
 import calmap
 
 class DataControl():
@@ -57,13 +56,27 @@ class DataControl():
 
     # ******** times **********
     def all_proj_heatmap(self, fig):
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot(len(self.data.project_id_names)+1, 1, 1)
+        axes = [ax]
         calmap.yearplot(self.data.track_records['duration'], cmap='YlGn', 
                 fillcolor='lightgrey',daylabels='MTWTFSS',
                 dayticks=[0,2,4,6], linewidth=0.3, year=2022, ax=ax)
+        ax.set_title("all projects")
+        i = 2
+        for name in self.data.project_id_names.values():
+            axes.append(self.proj_heatmap(name, fig, i))
+            i += 1
+        return axes
 
-    def proj_heatmap(self, name, fig):
-        ax = fig.add_subplot(111)
-        calmap.yearplot(self.data.track_records_group.get_gourp(name)['duration'], cmap='YlGn', 
-                fillcolor='lightgrey',daylabels='MTWTFSS',
-                dayticks=[0,2,4,6], linewidth=0.3, year=2022, ax=ax)
+
+    def proj_heatmap(self, name, fig, index):
+        ax = fig.add_subplot(len(self.data.project_id_names)+1, 1, index)
+        if name in self.data.track_records_group.groups:
+            calmap.yearplot(self.data.track_records_group.get_group(name)['duration'], cmap='YlGn', 
+                    fillcolor='lightgrey',daylabels='MTWTFSS',
+                    dayticks=[0,2,4,6], linewidth=0.3, year=2022, ax=ax)
+        else:
+            ax.text(0.5,0.5,"no data", horizontalalignment='center', verticalalignment='center')
+
+        ax.set_title(name)
+        return ax
