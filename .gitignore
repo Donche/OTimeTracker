@@ -1,3 +1,4 @@
 OTT_projects.txt
 *.log
 .*
+dist/

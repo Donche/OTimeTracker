@@ -1,7 +1,11 @@
 import tkinter as tk
 from tkinter import *
 import platform
-from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
 if platform.system() == "Darwin":
     from tkmacosx import Button
     MID_BUTTON_HEIGHT = 70
@@ -42,9 +46,12 @@ class MainWindow():
 
         # ******** Frames **********
         self.project_area = Frame()
-        self.project_area.pack(side = TOP)
+        self.project_area.grid(column=0, row = 0)
         self.control_area = Frame()
-        self.control_area.pack(side = BOTTOM)
+        self.control_area.grid(column=0, row = 1)
+        self.stats_area = Frame()
+        self.stats_area.grid(column=1, row = 0, rowspan=2)
+        self.stats_area.grid_remove()
 
         # ******** buttons **********
         for id in self.data.data.project_id_names:
@@ -55,8 +62,10 @@ class MainWindow():
         self.new_item_button.grid(column=0, row = 0)
 
         self.stats_button = Button(self.control_area, text='Stats', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.stats_button.configure(command=lambda: self.release(self.open_setting))
+        self.stats_button.configure(command=lambda: self.release(self.show_fig))
         self.stats_button.grid(column=1, row = 0)
+        self.fig = plt.Figure(figsize=(7,3), dpi=200)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.stats_area)
 
         self.rename_button = Button(self.control_area, text='Rename', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
         self.rename_button.configure(command=lambda: self.release(self.rename_project))
@@ -131,18 +140,18 @@ class MainWindow():
 
 
 
-    # ******** rename project **********
+    # ******** settting **********
     def open_setting(self):
         self.hide_all_control_buttons()
         for button in self.project_buttons:
             button.grid_remove()
         for label in self.project_labels:
             label[1].grid_remove()
-        self.project_area.pack_forget()
+        self.project_area.grid_remove()
         self.return_setting_button.grid(column=0, row = 0)
 
     def close_setting(self):
-        self.project_area.pack()
+        self.project_area.grid()
         self.show_all_control_buttons()
         for button in self.project_buttons:
             button.grid()
@@ -257,13 +266,14 @@ class MainWindow():
         self.project_buttons.append(new_button)
         self.project_labels.append((name, l))
 
+
     # ******** begin and stop **********
     def start_working(self, button):
         self.data.start_working(button['text'])
         self.tracking = True
 
         self.hide_all_control_buttons()
-        self.project_area.pack_forget()
+        self.project_area.grid_remove()
         for button in self.project_buttons:
             button.grid_remove()
         for label in self.project_labels:
@@ -280,7 +290,7 @@ class MainWindow():
 
         self.data.stop_working()
 
-        self.project_area.pack()
+        self.project_area.grid()
         self.stop_button.grid_remove()
         self.counting_label.grid_remove()
         for index in range(len(self.project_buttons)):
@@ -298,7 +308,7 @@ class MainWindow():
         self.show_all_control_buttons()
         self.m.attributes("-alpha", 1)
 
-    # ******** update time label **********
+
     def update_working_time(self):
         t = self.data.get_working_time()
         self.counting_label.configure(text=self.data.working_project+
@@ -306,6 +316,19 @@ class MainWindow():
         if self.tracking:
             self.counting_label.after(1000, self.update_working_time)
 
+
+    # ******** figures **********
+    def show_fig(self):
+        if self.stats_button['text'] != 'Stats':
+            self.stats_area.grid_remove()
+            self.stats_button.configure(text="Stats")
+            return
+        
+        self.data.create_plot(self.fig)
+        self.stats_button.configure(text="hide stats")
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
+        self.stats_area.grid()
 
 
     # ******** main loop **********

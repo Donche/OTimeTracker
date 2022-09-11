@@ -1,5 +1,7 @@
 from datetime import datetime
 from TrackData import TrackData
+import seaborn as sns
+import calmap
 
 class DataControl():
     def __init__(self):
@@ -34,7 +36,7 @@ class DataControl():
 
     def get_today_total(self, name):
         if name in self.data.record_projects():
-            return self.data.total_duration_at_day(name, datetime.now())
+            return self.data.proj_duration_at_day(name, datetime.now())
         else:
             return 0
 
@@ -53,5 +55,9 @@ class DataControl():
         self.data.add_entry(self.working_id, self.start_time, end_time, log_file)
 
 
-
-
+    # ******** times **********
+    def create_plot(self, fig):
+        ax = fig.add_subplot(111)
+        calmap.yearplot(self.data.track_records['duration'], cmap='YlGn', 
+                fillcolor='lightgrey',daylabels='MTWTFSS',
+                dayticks=[0,2,4,6], linewidth=0.3, year=2022, ax=ax)
