@@ -56,8 +56,14 @@ class DataControl():
 
 
     # ******** times **********
-    def create_plot(self, fig):
+    def all_proj_heatmap(self, fig):
         ax = fig.add_subplot(111)
         calmap.yearplot(self.data.track_records['duration'], cmap='YlGn', 
+                fillcolor='lightgrey',daylabels='MTWTFSS',
+                dayticks=[0,2,4,6], linewidth=0.3, year=2022, ax=ax)
+
+    def proj_heatmap(self, name, fig):
+        ax = fig.add_subplot(111)
+        calmap.yearplot(self.data.track_records_group.get_gourp(name)['duration'], cmap='YlGn', 
                 fillcolor='lightgrey',daylabels='MTWTFSS',
                 dayticks=[0,2,4,6], linewidth=0.3, year=2022, ax=ax)

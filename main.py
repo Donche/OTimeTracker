@@ -53,7 +53,7 @@ class MainWindow():
         self.stats_area.grid(column=1, row = 0, rowspan=2)
         self.stats_area.grid_remove()
 
-        # ******** buttons **********
+        # ******** Project Buttons **********
         for id in self.data.data.project_id_names:
             self.add_new_project_button(self.data.data.project_id_names[id])
 
@@ -61,12 +61,16 @@ class MainWindow():
         self.new_item_button.configure(command=lambda: self.release(self.add_new_item))
         self.new_item_button.grid(column=0, row = 0)
 
+        # ******** Stats & Figure Buttons **********
         self.stats_button = Button(self.control_area, text='Stats', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
         self.stats_button.configure(command=lambda: self.release(self.show_fig))
         self.stats_button.grid(column=1, row = 0)
-        self.fig = plt.Figure(figsize=(7,3), dpi=200)
+        self.fig = plt.Figure(figsize=(14,3), dpi=100)
+        self.fig.set_tight_layout({"pad": 1.0})
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.stats_area)
 
+
+        # ******** Control Buttons **********
         self.rename_button = Button(self.control_area, text='Rename', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
         self.rename_button.configure(command=lambda: self.release(self.rename_project))
         self.rename_button.grid(column=0, row = 1)
@@ -284,6 +288,7 @@ class MainWindow():
         self.update_working_time()
         self.counting_label.after(1000, self.update_working_time)
         self.m.attributes("-alpha", 0.5)
+        self.m.wm_attributes("-topmost", 1)
 
     def stop_working(self):
         self.tracking = False
@@ -307,6 +312,7 @@ class MainWindow():
 
         self.show_all_control_buttons()
         self.m.attributes("-alpha", 1)
+        self.m.wm_attributes("-topmost", 0)
 
 
     def update_working_time(self):
@@ -324,7 +330,7 @@ class MainWindow():
             self.stats_button.configure(text="Stats")
             return
         
-        self.data.create_plot(self.fig)
+        self.data.all_proj_heatmap(self.fig)
         self.stats_button.configure(text="hide stats")
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
@@ -334,7 +340,7 @@ class MainWindow():
     # ******** main loop **********
     def mainloop(self):
         self.m.overrideredirect(True)
-        self.m.wm_attributes("-topmost", 1)
+        self.m.wm_attributes("-topmost", 0)
         self.m.mainloop()
 
 

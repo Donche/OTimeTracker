@@ -117,7 +117,7 @@ class TrackData():
         else:
             return 0
 
-    def total_duration_at_day(self, day):
+    def total_duration_at_day(self, day, name):
         if str(day.date()) in self.track_records.index:
             return self.track_records_group.get_group(name).loc[str(day.date())]['duration'].sum()
         else:
