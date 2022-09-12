@@ -80,3 +80,15 @@ class DataControl():
 
         ax.set_title(name)
         return ax
+    
+    def bar_plot(self, fig):
+        ax = fig.add_subplot(111)
+        tmp = self.data.track_records.groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+        tmp.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax)
+        return [ax]
+
+    def pie_chart(self, fig):
+        ax = fig.add_subplot(111)
+        tmp = self.data.track_records_group['duration'].sum()
+        tmp.plot.pie(y='duration', title='yes', ax=ax)
+        return [ax]

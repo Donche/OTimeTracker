@@ -3,6 +3,7 @@ from tkinter import *
 import platform
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 if platform.system() == "Darwin":
     from tkmacosx import Button
@@ -70,13 +71,13 @@ class MainWindow():
 
         self.radioButtons = []
         self.radioButtonChoice = IntVar(value=0)
-        self.Choices = [('HeatMap', 0), ('Todo', 1), ('Todo', 2)]
+        self.Choices = [('HeatMap', 0), ('BarPlot', 1), ('PieChart', 2)]
         button_color = ('palegreen', 'mistyrose', 'lavender')
         for c, v in self.Choices:
             tk.Radiobutton(self.stats_area, text=c, padx = 20, indicatoron = 0,
             width = 20, height=3, anchor=CENTER, fg='black', bg=button_color[v],
             font=tkFont.Font(size=20), variable=self.radioButtonChoice, 
-            value=v).grid(row = 0, column=v,sticky="ew")
+            command=self.update_fig, value=v).grid(row = 0, column=v,sticky="ew")
 
         # ******** Control Buttons **********
         self.rename_button = Button(self.control_area, text='Rename', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
@@ -335,6 +336,7 @@ class MainWindow():
 
     # ******** figures **********
     def show_fig(self):
+        sns.set_theme(palette="husl")
         if self.stats_button['text'] != 'Stats':
             self.stats_area.grid_remove()
             self.stats_button.configure(text="Stats", bg='lightblue')
@@ -346,8 +348,26 @@ class MainWindow():
         self.stats_button.configure(text="hide stats", bg='pink')
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
-        # self.canvas.get_tk_widget().pack()
         self.stats_area.grid()
+    
+    def update_fig(self):
+        print("update fig, choice=", self.radioButtonChoice.get())
+        for ax in self.axes:
+            ax.remove()
+        if self.radioButtonChoice.get() == 0:
+            self.axes = self.data.all_proj_heatmap(self.fig)
+            self.canvas.draw()
+            self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
+        elif self.radioButtonChoice.get() == 1:
+            self.axes = self.data.bar_plot(self.fig)
+            self.canvas.draw()
+            self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
+        elif self.radioButtonChoice.get() == 2:
+            self.axes = self.data.pie_chart(self.fig)
+            self.canvas.draw()
+            self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
+
+
 
 
     # ******** main loop **********
