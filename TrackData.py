@@ -46,6 +46,7 @@ class TrackData():
         self.track_records = pd.concat([self.track_records, pd.DataFrame(
                 track_record, columns=['name', 'start', 'end', 'duration'])])
         self.track_records = self.track_records.set_index('start')
+        self.track_records['week']  = self.track_records.index.strftime("%V")
         self.track_records_group = self.track_records.groupby(['name'])
 
     # ******** project **********
@@ -97,8 +98,8 @@ class TrackData():
     def add_entry(self, id, start_time, end_time, log_file):
         new_df = pd.DataFrame(
             [[self.project_id_names[id], start_time, end_time, 
-            (end_time-start_time).seconds]], 
-            columns=['name', 'start', 'end', 'duration']).set_index('start') 
+            (end_time-start_time).seconds, start_time.strftime("%V")]],
+            columns=['name', 'start', 'end', 'duration', 'week']).set_index('start') 
         self.track_records = pd.concat([self.track_records, new_df])
         self.track_records_group = self.track_records.groupby(['name'])
         with open(log_file, 'a') as f:

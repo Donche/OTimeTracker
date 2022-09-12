@@ -30,6 +30,15 @@ from DataControl import DataControl
 
 class MainWindow():
     def __init__(self):
+        sns.set_theme(palette="Set3")
+        custom_style = {'axes.labelcolor': 'white',
+                'xtick.color': 'white',
+                'ytick.color': 'white'}
+        sns.set(rc={'axes.facecolor':'#333333', 'axes.labelcolor': 'lightgrey',
+                'axes.edgecolor': '#888888',
+                'xtick.color': 'lightgrey', 'grid.color': '#888888',
+                'text.color': 'lightgrey', 'patch.edgecolor': '#666666',
+                'ytick.color': 'lightgrey','figure.facecolor':'#222222'})
         # ******** window **********
         self.m = tk.Tk()
         self.m.title('Time Tracker')
@@ -69,14 +78,25 @@ class MainWindow():
         self.fig.set_tight_layout({"pad": 1.0})
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.stats_area)
 
-        self.radioButtons = []
-        self.radioButtonChoice = IntVar(value=0)
+        self.radio_button_choice = IntVar(value=0)
         self.Choices = [('HeatMap', 0), ('BarPlot', 1), ('PieChart', 2)]
-        button_color = ('palegreen', 'mistyrose', 'lavender')
+        button_color = ('palegreen', 'mistyrose', 'lavender', 'plum1')
+        total_width = 60
         for c, v in self.Choices:
             tk.Radiobutton(self.stats_area, text=c, padx = 20, indicatoron = 0,
-            width = 20, height=3, anchor=CENTER, fg='black', bg=button_color[v],
-            font=tkFont.Font(size=20), variable=self.radioButtonChoice, 
+            width = int(total_width/len(self.Choices)), height=3, anchor=CENTER, fg='black', bg=button_color[v],
+            font=tkFont.Font(size=20), variable=self.radio_button_choice, 
+            command=self.update_fig, value=v).grid(row = 0, column=v,sticky="ew")
+        
+
+        self.scale_frame = Frame(self.stats_area)
+        self.scale_frame.grid(column=0, row = 2, columnspan=3)
+        self.time_scale = [('week', 0), ('month', 1), ('year', 2), ('all', 3)]
+        self.time_scale_choice = IntVar(value=0)
+        for c, v in self.time_scale:
+            tk.Radiobutton(self.scale_frame, text=c, padx = 20, indicatoron = 0,
+            width = int(total_width/len(self.time_scale)), height=2, anchor=CENTER, fg='black', bg=button_color[v],
+            font=tkFont.Font(size=20), variable=self.time_scale_choice, 
             command=self.update_fig, value=v).grid(row = 0, column=v,sticky="ew")
 
         # ******** Control Buttons **********
@@ -336,7 +356,6 @@ class MainWindow():
 
     # ******** figures **********
     def show_fig(self):
-        sns.set_theme(palette="husl")
         if self.stats_button['text'] != 'Stats':
             self.stats_area.grid_remove()
             self.stats_button.configure(text="Stats", bg='lightblue')
@@ -344,6 +363,7 @@ class MainWindow():
                 ax.remove()
             return
         
+        self.scale_frame.grid_remove()
         self.axes = self.data.all_proj_heatmap(self.fig)
         self.stats_button.configure(text="hide stats", bg='pink')
         self.canvas.draw()
@@ -351,23 +371,20 @@ class MainWindow():
         self.stats_area.grid()
     
     def update_fig(self):
-        print("update fig, choice=", self.radioButtonChoice.get())
+        print("update fig, choice=", self.radio_button_choice.get())
         for ax in self.axes:
             ax.remove()
-        if self.radioButtonChoice.get() == 0:
+        if self.radio_button_choice.get() == 0:
             self.axes = self.data.all_proj_heatmap(self.fig)
-            self.canvas.draw()
-            self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
-        elif self.radioButtonChoice.get() == 1:
-            self.axes = self.data.bar_plot(self.fig)
-            self.canvas.draw()
-            self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
-        elif self.radioButtonChoice.get() == 2:
-            self.axes = self.data.pie_chart(self.fig)
-            self.canvas.draw()
-            self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
-
-
+            self.scale_frame.grid_remove()
+        elif self.radio_button_choice.get() == 1:
+            self.scale_frame.grid()
+            self.axes = self.data.bar_plot(self.fig, self.time_scale[self.time_scale_choice.get()][0])
+        elif self.radio_button_choice.get() == 2:
+            self.scale_frame.grid()
+            self.axes = self.data.pie_chart(self.fig, self.time_scale[self.time_scale_choice.get()][0])
+        self.canvas.draw()
+        self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
 
 
     # ******** main loop **********

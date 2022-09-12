@@ -81,14 +81,68 @@ class DataControl():
         ax.set_title(name)
         return ax
     
-    def bar_plot(self, fig):
+    def bar_plot(self, fig, scale):
         ax = fig.add_subplot(111)
-        tmp = self.data.track_records.groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+        print(scale)
+        now = datetime.now()
+        if scale == "week":
+            current_year = str(now.year)
+            current_week = str(now.strftime("%V"))
+            if current_year in self.data.track_records.index:
+                tmp = self.data.track_records[current_year][self.data.track_records['week']==current_week]
+                if len(tmp.index) != 0:
+                    tmp = tmp.groupby([tmp.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+                else:
+                    return [ax]
+            else:
+                return [ax]
+        elif scale == "month":
+            current_month = str(now.year) + "-" + str(now.month)
+            if current_month in self.data.track_records.index:
+                print("yes")
+                tmp = self.data.track_records.loc[current_month].groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+            else:
+                return [ax]
+        elif scale == "year":
+            current_year = str(now.year)
+            if current_year in self.data.track_records.index:
+                print("yes")
+                tmp = self.data.track_records.loc[current_year].groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+            else:
+                return [ax]
+        else:
+            tmp = self.data.track_records.groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
         tmp.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax)
         return [ax]
 
-    def pie_chart(self, fig):
+    def pie_chart(self, fig, scale):
         ax = fig.add_subplot(111)
-        tmp = self.data.track_records_group['duration'].sum()
+        now = datetime.now()
+        print(scale)
+        if scale == "week":
+            current_year = str(now.year)
+            current_week = str(now.strftime("%V"))
+            if current_year in self.data.track_records.index:
+                tmp = self.data.track_records.loc[current_year].groupby('week')
+                if current_week in tmp.groups.keys():
+                    tmp = tmp.get_group(str(current_week)).groupby('name')['duration'].sum()
+                else:
+                    return [ax]
+            else:
+                return [ax]
+        elif scale == "month":
+            current_month = str(now.year) + "-" + str(now.month)
+            if current_month in self.data.track_records.index:
+                tmp = self.data.track_records.loc[current_month].groupby('name')['duration'].sum()
+            else:
+                return [ax]
+        elif scale == "year":
+            current_year = str(now.year)
+            if current_year in self.data.track_records.index:
+                tmp = self.data.track_records.loc[current_year].groupby('name')['duration'].sum()
+            else:
+                return [ax]
+        else:
+            tmp = self.data.track_records_group['duration'].sum()
         tmp.plot.pie(y='duration', title='yes', ax=ax)
         return [ax]
