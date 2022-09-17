@@ -65,13 +65,11 @@ class MainWindow():
         for id in self.data.data.project_id_names:
             self.add_new_project_button(self.data.data.project_id_names[id])
 
-        self.new_item_button= Button(self.control_area, text='New', width = BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, fg='black', bg='lightblue')
-        self.new_item_button.configure(command=lambda: self.release(self.add_new_item))
+        self.new_item_button = self._control_button()(text='New', command=self.add_new_item)
         self.new_item_button.grid(column=0, row = 0)
 
         # ******** Stats & Figure Buttons **********
-        self.stats_button = Button(self.control_area, text='Stats', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.stats_button.configure(command=lambda: self.release(self.show_fig))
+        self.stats_button = self._control_button()(text='Stats', command=self.show_fig)
         self.stats_button.grid(column=1, row = 0)
 
         self.fig = plt.Figure(dpi=150)
@@ -84,9 +82,10 @@ class MainWindow():
         total_width = 60
         for c, v in self.Choices:
             tk.Radiobutton(self.stats_area, text=c, padx = 20, indicatoron = 0,
-            width = int(total_width/len(self.Choices)), height=3, anchor=CENTER, fg='black', bg=button_color[v],
-            font=tkFont.Font(size=20), variable=self.radio_button_choice, 
-            command=self.update_fig, value=v).grid(row = 0, column=v,sticky="ew")
+            width = int(total_width/len(self.Choices)), height=3, anchor=CENTER, 
+            fg='black', bg=button_color[v], font=tkFont.Font(size=20), 
+            variable=self.radio_button_choice, command=self.update_fig, 
+            value=v).grid(row = 0, column=v,sticky="ew")
         
 
         self.scale_frame = Frame(self.stats_area)
@@ -95,45 +94,53 @@ class MainWindow():
         self.time_scale_choice = IntVar(value=0)
         for c, v in self.time_scale:
             tk.Radiobutton(self.scale_frame, text=c, padx = 20, indicatoron = 0,
-            width = int(total_width/len(self.time_scale)), height=2, anchor=CENTER, fg='black', bg=button_color[v],
+            width = int(total_width/len(self.time_scale)), height=2, 
+            anchor=CENTER, fg='black', bg=button_color[v],
             font=tkFont.Font(size=20), variable=self.time_scale_choice, 
             command=self.update_fig, value=v).grid(row = 0, column=v,sticky="ew")
 
         # ******** Control Buttons **********
-        self.rename_button = Button(self.control_area, text='Rename', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.rename_button.configure(command=lambda: self.release(self.rename_project))
+        self.rename_button = self._control_button()(text='Rename', command=self.rename_project)
         self.rename_button.grid(column=0, row = 1)
 
-        self.return_rename_button = Button(self.control_area, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.return_rename_button.configure(command=lambda: self.release(self.__exit_rename))
+        self.return_rename_button = self._control_button()(text='Return', command=self.__exit_rename)
 
-        self.archive_button = Button(self.control_area, text='Archive', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.archive_button.configure(command=lambda: self.release(self.archive_project))
+        self.archive_button = self._control_button()(text='Archive', command=self.archive_project)
         self.archive_button.grid(column=1, row = 1)
 
-        self.return_archive_button = Button(self.control_area, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.return_archive_button.configure(command=lambda: self.release(self.__exit_archive))
+        self.return_archive_button = self._control_button()(text='Return', command=self.__exit_archive)
 
-        self.setting_button = Button(self.control_area, text='Setting', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.setting_button.configure(command=lambda: self.release(self.open_setting))
+        self.setting_button = self._control_button()(text='Setting', command=self.open_setting)
         self.setting_button.grid(column=0, row = 2)
         
-        self.return_setting_button = Button(self.control_area, text='Return', height = SMALL_BUTTON_HEIGHT, width=BUTTON_WIDTH, fg='black', bg='lightblue')
-        self.return_setting_button.configure(command=lambda: self.release(self.close_setting))
+        self.return_setting_button = self._control_button()(text='Return', command=self.close_setting)
 
-        self.exit_button = Button(self.control_area, text='Exit', width=BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, fg='black', bg='red')
-        self.exit_button.configure(command=lambda: self.release(exit))
+        self.exit_button = Button(self.control_area, width = BUTTON_WIDTH, command=exit,
+                height=SMALL_BUTTON_HEIGHT, fg='black', bg='red', text='Exit')
         self.exit_button.grid(column=1, row = 2)
 
 
         self.photo = PhotoImage(file='stop.png').subsample(8,8)
-        self.stop_button = Button(self.control_area, image = self.photo, command=lambda: self.release(self.stop_working))
+        self.stop_button = Button(self.control_area, image = self.photo, command=self.stop_working)
         self.counting_label = Label(self.control_area, text="")
 
         # ******** variables **********
         self.dragging = False
         self.tracking = False
 
+    def _control_button(self):
+        def b(*args, **kwargs):
+            return Button(self.control_area, width = BUTTON_WIDTH, height=SMALL_BUTTON_HEIGHT, 
+                fg='black', bg='lightblue', *args, **kwargs)
+        return b
+
+    def _decorator(foo):
+        def magic( self ) :
+            if self.dragging:
+                self.dragging = False
+            elif foo != 0:
+                foo( self )
+        return magic
 
     # ******** window behavior **********
     def drag(self, event):
@@ -146,12 +153,6 @@ class MainWindow():
         self.m.offsetx = self.m.winfo_pointerx() - self.m.winfo_rootx()
         self.m.offsety = self.m.winfo_pointery() - self.m.winfo_rooty()
         self.dragging = False
-
-    def release(self, f = 0):
-        if self.dragging:
-            self.dragging = False
-        elif f != 0:
-            f()
 
     def hide_all_control_buttons(self):
         self.new_item_button.grid_remove()
@@ -174,6 +175,7 @@ class MainWindow():
 
 
     # ******** settting **********
+    @_decorator
     def open_setting(self):
         self.hide_all_control_buttons()
         for button in self.project_buttons:
@@ -183,6 +185,7 @@ class MainWindow():
         self.project_area.grid_remove()
         self.return_setting_button.grid(column=0, row = 0)
 
+    @_decorator
     def close_setting(self):
         self.project_area.grid()
         self.show_all_control_buttons()
@@ -194,6 +197,7 @@ class MainWindow():
 
 
     # ******** rename project **********
+    @_decorator
     def rename_project(self):
         for i in range(len(self.project_buttons)):
             self.addRenameProjectButton(self.project_buttons[i]['text'], i)
@@ -201,7 +205,10 @@ class MainWindow():
         self.return_rename_button.grid(row = 0, column = 0)
 
     def addRenameProjectButton(self, name, i):
-        b = Button(self.project_area, text='Rename', height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__rename_project(i))
+        b = Button(self.project_area, text='Rename', 
+                height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, 
+                font=tkFont.Font(size=20), fg = 'blue', 
+                command=lambda: self.__rename_project(i))
         b.grid(row = i*2, column = 1)
         self.rename_buttons.append(b)
 
@@ -227,6 +234,7 @@ class MainWindow():
         self.__exit_rename()
 
                
+    @_decorator
     def __exit_rename(self):
         for i in range(len(self.project_buttons)):
             self.project_buttons[i].grid(row = i*2)
@@ -240,6 +248,7 @@ class MainWindow():
 
 
     # ******** archive project **********
+    @_decorator
     def archive_project(self):
         for i in range(len(self.project_buttons)):
             self.add_archive_project_button(self.project_buttons[i]['text'], i)
@@ -247,7 +256,10 @@ class MainWindow():
         self.return_archive_button.grid(row = 0, column = 0)
 
     def add_archive_project_button(self, name, i):
-        b = Button(self.project_area, text='Archive', height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, font=tkFont.Font(size=20), fg = 'blue',  command=lambda: self.__archive_project(i))
+        b = Button(self.project_area, text='Archive', 
+                height = MID_BUTTON_HEIGHT, width=BUTTON_WIDTH, 
+                font=tkFont.Font(size=20), fg = 'blue', 
+                command=lambda: self.__archive_project(i))
         b.grid(row = i*2, column = 1)
         self.archive_buttons.append(b)
 
@@ -262,6 +274,7 @@ class MainWindow():
         self.__exit_archive()
 
            
+    @_decorator
     def __exit_archive(self):
         for i in range(len(self.project_buttons)):
             self.project_buttons[i].grid(row = i*2)
@@ -275,6 +288,7 @@ class MainWindow():
 
 
     # ******** add new project **********
+    @_decorator
     def add_new_item(self):
 
         new_name = simpledialog.askstring(title="new Project",
@@ -321,6 +335,7 @@ class MainWindow():
         self.m.attributes("-alpha", 0.5)
         self.m.wm_attributes("-topmost", 1)
 
+    @_decorator
     def stop_working(self):
         self.tracking = False
 
@@ -355,6 +370,7 @@ class MainWindow():
 
 
     # ******** figures **********
+    @_decorator
     def show_fig(self):
         if self.stats_button['text'] != 'Stats':
             self.stats_area.grid_remove()
@@ -369,7 +385,7 @@ class MainWindow():
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
         self.stats_area.grid()
-    
+
     def update_fig(self):
         print("update fig, choice=", self.radio_button_choice.get())
         for ax in self.axes:

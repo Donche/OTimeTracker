@@ -99,7 +99,6 @@ class DataControl():
         elif scale == "month":
             current_month = str(now.year) + "-" + str(now.month)
             if current_month in self.data.track_records.index:
-                print("yes")
                 tmp = self.data.track_records.loc[current_month].groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
             else:
                 return [ax]
@@ -107,12 +106,12 @@ class DataControl():
             current_year = str(now.year)
             if current_year in self.data.track_records.index:
                 print("yes")
-                tmp = self.data.track_records.loc[current_year].groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+                tmp = self.data.track_records.loc[current_year].groupby([self.data.track_records.index.month, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
             else:
                 return [ax]
         else:
-            tmp = self.data.track_records.groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
-        tmp.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax)
+            tmp = self.data.track_records.groupby([self.data.track_records.index.year, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+        tmp.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax, rot=40)
         return [ax]
 
     def pie_chart(self, fig, scale):
