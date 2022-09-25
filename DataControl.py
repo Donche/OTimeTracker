@@ -94,25 +94,28 @@ class DataControl():
     def bar_plot(self, fig, scale):
         ax = fig.add_subplot(111)
         print(scale)
+        res = self.tmp
         if scale == "week":
             if self.current_year in self.tmp.index :
                 res = self.tmp.loc[self.current_year][self.tmp['week']==self.current_week]
-                if len(res.index) != 0:
+                if len(res.index) == 0:
                     return [ax]
             else:
                 return [ax]
         elif scale == "month":
             if self.current_month in self.tmp.index:
                 res = self.tmp.loc[self.current_month]
+                if len(res.index) == 0:
+                    return [ax]
             else:
                 return [ax]
         elif scale == "year":
             if self.current_year in self.tmp.index:
                 res = self.tmp.loc[self.current_year]
+                if len(res.index) == 0:
+                    return [ax]
             else:
                 return [ax]
-        else:
-            res = self.tmp
         res.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax, rot=40)
         return [ax]
 
