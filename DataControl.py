@@ -1,5 +1,6 @@
 from datetime import datetime
 from TrackData import TrackData
+import pandas as pd
 import calmap
 
 class DataControl():
@@ -55,6 +56,15 @@ class DataControl():
 
 
     # ******** times **********
+    def init_plot(self):
+        now = datetime.now()
+        self.current_year = str(now.year)
+        self.current_month = str(now.year) + "-" + str(now.month)
+        self.current_week = str(now.strftime("%V"))
+        self.tmp = self.data.track_records.groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+        self.tmp.index = pd.to_datetime(self.tmp.index)
+        self.tmp['week']  = self.tmp.index.strftime("%V")
+
     def all_proj_heatmap(self, fig):
         ax = fig.add_subplot(len(self.data.project_id_names)+1, 1, 1)
         axes = [ax]
@@ -84,61 +94,48 @@ class DataControl():
     def bar_plot(self, fig, scale):
         ax = fig.add_subplot(111)
         print(scale)
-        now = datetime.now()
         if scale == "week":
-            current_year = str(now.year)
-            current_week = str(now.strftime("%V"))
-            if current_year in self.data.track_records.index:
-                tmp = self.data.track_records[current_year][self.data.track_records['week']==current_week]
-                if len(tmp.index) != 0:
-                    tmp = tmp.groupby([tmp.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
-                else:
+            if self.current_year in self.tmp.index :
+                res = self.tmp.loc[self.current_year][self.tmp['week']==self.current_week]
+                if len(res.index) != 0:
                     return [ax]
             else:
                 return [ax]
         elif scale == "month":
-            current_month = str(now.year) + "-" + str(now.month)
-            if current_month in self.data.track_records.index:
-                tmp = self.data.track_records.loc[current_month].groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+            if self.current_month in self.tmp.index:
+                res = self.tmp.loc[self.current_month]
             else:
                 return [ax]
         elif scale == "year":
-            current_year = str(now.year)
-            if current_year in self.data.track_records.index:
-                print("yes")
-                tmp = self.data.track_records.loc[current_year].groupby([self.data.track_records.index.month, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
+            if self.current_year in self.tmp.index:
+                res = self.tmp.loc[self.current_year]
             else:
                 return [ax]
         else:
-            tmp = self.data.track_records.groupby([self.data.track_records.index.year, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
-        tmp.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax, rot=40)
+            res = self.tmp
+        res.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax, rot=40)
         return [ax]
 
     def pie_chart(self, fig, scale):
         ax = fig.add_subplot(111)
-        now = datetime.now()
         print(scale)
         if scale == "week":
-            current_year = str(now.year)
-            current_week = str(now.strftime("%V"))
-            if current_year in self.data.track_records.index:
-                tmp = self.data.track_records.loc[current_year].groupby('week')
-                if current_week in tmp.groups.keys():
-                    tmp = tmp.get_group(str(current_week)).groupby('name')['duration'].sum()
+            if self.current_year in self.data.track_records.index:
+                tmp = self.data.track_records.loc[self.current_year].groupby('week')
+                if self.current_week in tmp.groups.keys():
+                    tmp = tmp.get_group(str(self.current_week)).groupby('name')['duration'].sum()
                 else:
                     return [ax]
             else:
                 return [ax]
         elif scale == "month":
-            current_month = str(now.year) + "-" + str(now.month)
-            if current_month in self.data.track_records.index:
-                tmp = self.data.track_records.loc[current_month].groupby('name')['duration'].sum()
+            if self.current_month in self.data.track_records.index:
+                tmp = self.data.track_records.loc[self.current_month].groupby('name')['duration'].sum()
             else:
                 return [ax]
         elif scale == "year":
-            current_year = str(now.year)
-            if current_year in self.data.track_records.index:
-                tmp = self.data.track_records.loc[current_year].groupby('name')['duration'].sum()
+            if self.current_year in self.data.track_records.index:
+                tmp = self.data.track_records.loc[self.current_year].groupby('name')['duration'].sum()
             else:
                 return [ax]
         else:

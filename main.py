@@ -379,6 +379,7 @@ class MainWindow():
                 ax.remove()
             return
         
+        self.data.init_plot()
         self.scale_frame.grid_remove()
         self.axes = self.data.all_proj_heatmap(self.fig)
         self.stats_button.configure(text="hide stats", bg='pink')
