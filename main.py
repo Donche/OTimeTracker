@@ -86,10 +86,20 @@ class MainWindow():
             fg='black', bg=button_color[v], font=tkFont.Font(size=20), 
             variable=self.radio_button_choice, command=self.update_fig, 
             value=v).grid(row = 0, column=v,sticky="ew")
-        
+
 
         self.scale_frame = Frame(self.stats_area)
         self.scale_frame.grid(column=0, row = 2, columnspan=3)
+
+        self.control_scale = [('<', -1), ('o', 0), ('>', 1)]
+        self.control_scale_choice = IntVar(value=0)
+        for c, v in self.control_scale:
+            tk.Radiobutton(self.scale_frame, text=c, padx = 20, indicatoron = 0,
+            width = int(total_width/len(self.control_scale)), height=2, 
+            anchor=CENTER, fg='black', bg=button_color[v],
+            font=tkFont.Font(size=10), variable=self.control_scale_choice, 
+            command=self.update_range, value=v).grid(row = 0, column=(v+1)*4,columnspan=4,sticky="ew")
+
         self.time_scale = [('week', 0), ('month', 1), ('year', 2), ('all', 3)]
         self.time_scale_choice = IntVar(value=0)
         for c, v in self.time_scale:
@@ -97,7 +107,7 @@ class MainWindow():
             width = int(total_width/len(self.time_scale)), height=2, 
             anchor=CENTER, fg='black', bg=button_color[v],
             font=tkFont.Font(size=20), variable=self.time_scale_choice, 
-            command=self.update_fig, value=v).grid(row = 0, column=v,sticky="ew")
+            command=self.update_fig, value=v).grid(row = 1, column=v*3,columnspan=3,sticky="ew")
 
         # ******** Control Buttons **********
         self.rename_button = self._control_button()(text='Rename', command=self.rename_project)
@@ -388,7 +398,6 @@ class MainWindow():
         self.stats_area.grid()
 
     def update_fig(self):
-        print("update fig, choice=", self.radio_button_choice.get())
         for ax in self.axes:
             ax.remove()
         if self.radio_button_choice.get() == 0:
@@ -402,6 +411,10 @@ class MainWindow():
             self.axes = self.data.pie_chart(self.fig, self.time_scale[self.time_scale_choice.get()][0])
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=len(self.Choices))
+    
+    def update_range(self):
+        self.data.update_range(self.time_scale[self.time_scale_choice.get()][0], int(self.control_scale_choice.get()))
+        self.update_fig()
 
 
     # ******** main loop **********

@@ -58,9 +58,9 @@ class DataControl():
     # ******** times **********
     def init_plot(self):
         now = datetime.now()
-        self.current_year = str(now.year)
-        self.current_month = str(now.year) + "-" + str(now.month)
-        self.current_week = str(now.strftime("%V"))
+        self.target_year = str(now.year)
+        self.target_month = str(now.year) + "-" + str(now.month)
+        self.target_week = int(now.strftime("%V"))
         self.tmp = self.data.track_records.groupby([self.data.track_records.index.date, 'name']).sum().reset_index(level=1).pivot(columns='name', values='duration')
         self.tmp.index = pd.to_datetime(self.tmp.index)
         self.tmp['week']  = self.tmp.index.strftime("%V")
@@ -93,29 +93,20 @@ class DataControl():
     
     def bar_plot(self, fig, scale):
         ax = fig.add_subplot(111)
-        print(scale)
-        res = self.tmp
+        res = pd.DataFrame()
         if scale == "week":
-            if self.current_year in self.tmp.index :
-                res = self.tmp.loc[self.current_year][self.tmp['week']==self.current_week]
-                if len(res.index) == 0:
-                    return [ax]
-            else:
-                return [ax]
+            if self.target_year in self.tmp.index :
+                res = self.tmp.loc[self.target_year][self.tmp['week']==self.target_week]
         elif scale == "month":
-            if self.current_month in self.tmp.index:
-                res = self.tmp.loc[self.current_month]
-                if len(res.index) == 0:
-                    return [ax]
-            else:
-                return [ax]
+            if self.target_month in self.tmp.index:
+                res = self.tmp.loc[self.target_month]
         elif scale == "year":
-            if self.current_year in self.tmp.index:
-                res = self.tmp.loc[self.current_year]
-                if len(res.index) == 0:
-                    return [ax]
-            else:
-                return [ax]
+            if self.target_year in self.tmp.index:
+                res = self.tmp.loc[self.target_year]
+        else:
+            res = self.tmp
+        if len(res.index) == 0:
+            return [ax]
         res.plot.bar(stacked=True,  ylabel='Hours', xlabel='Date', title='yes', ax=ax, rot=40)
         return [ax]
 
@@ -123,25 +114,41 @@ class DataControl():
         ax = fig.add_subplot(111)
         print(scale)
         if scale == "week":
-            if self.current_year in self.data.track_records.index:
-                tmp = self.data.track_records.loc[self.current_year].groupby('week')
-                if self.current_week in tmp.groups.keys():
-                    tmp = tmp.get_group(str(self.current_week)).groupby('name')['duration'].sum()
+            if self.target_year in self.data.track_records.index:
+                tmp = self.data.track_records.loc[self.target_year].groupby('week')
+                if self.target_week in tmp.groups.keys():
+                    tmp = tmp.get_group(self.target_week).groupby('name')['duration'].sum()
                 else:
                     return [ax]
             else:
                 return [ax]
         elif scale == "month":
-            if self.current_month in self.data.track_records.index:
-                tmp = self.data.track_records.loc[self.current_month].groupby('name')['duration'].sum()
+            if self.target_month in self.data.track_records.index:
+                tmp = self.data.track_records.loc[self.target_month].groupby('name')['duration'].sum()
             else:
                 return [ax]
         elif scale == "year":
-            if self.current_year in self.data.track_records.index:
-                tmp = self.data.track_records.loc[self.current_year].groupby('name')['duration'].sum()
+            if self.target_year in self.data.track_records.index:
+                tmp = self.data.track_records.loc[self.target_year].groupby('name')['duration'].sum()
             else:
                 return [ax]
         else:
             tmp = self.data.track_records_group['duration'].sum()
         tmp.plot.pie(y='duration', title='yes', ax=ax)
         return [ax]
+    
+    def reset_range(self):
+        now = datetime.now()
+        self.target_year = str(now.year)
+        self.target_month = str(now.year) + "-" + str(now.month)
+        self.target_week = int(now.strftime("%V"))
+
+    def update_range(self, scale, prev):
+        if prev == 0:
+            self.reset_range()
+        if scale == "week":
+            self.target_week = str(int(self.target_week) + prev)
+        elif scale == "month":
+            self.target_month = self.target_year + "-" + str(int(self.target_month.split("-")[-1]) + prev)
+        elif scale == "year":
+            self.target_year = str(int(self.target_year) + prev)
