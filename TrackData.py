@@ -14,6 +14,9 @@ class TrackData():
         if exists('OTT_projects.txt'):
             with open('OTT_projects.txt','r') as f:
                 lines = [i.strip() for i in f.readlines()]
+                print(len(lines))
+                self.data_path = lines[0].strip()
+                lines = lines[1:]
                 for l in lines:
                     if l[:2] == "--":
                         name, id = l[2:].split(", ")
@@ -23,8 +26,24 @@ class TrackData():
                         self.project_id_names[uuid.UUID(id.strip())] = name
             print("projects: ", self.project_id_names)
             print("archived projects: ", self.archived_project_id_names)
+        else:
+            with open('OTT_projects.txt','w') as f:
+                self.data_path = ""
+                f.write(self.data_path)
+
+
+    def set_data_path(self, data_path):
+        self.data_path = data_path
+        with open('OTT_projects.txt','r') as f:
+            lines = [i.strip() for i in f.readlines()]
+        with open('OTT_projects.txt','w') as f:
+            lines = [data_path] + lines[1:]
+            for l in lines:
+                f.write(l+"\n")
+        
     
-    def loadHistory(self, log_file):
+    def loadHistory(self):
+        log_file = self.data_path + '{}-{}.log'.format(datetime.now().year, datetime.now().month)
         if not exists(log_file):
             print("no log file")
             return
@@ -95,7 +114,8 @@ class TrackData():
 
 
     # ******** records **********
-    def add_entry(self, id, start_time, end_time, log_file):
+    def add_entry(self, id, start_time, end_time):
+        log_file = self.data_path + '/{}-{}.log'.format(start_time.year, start_time.month)
         new_df = pd.DataFrame(
             [[self.project_id_names[id], start_time, end_time, 
             (end_time-start_time).seconds, start_time.strftime("%V")]],
@@ -109,6 +129,8 @@ class TrackData():
 
     # ******** data **********
     def record_projects(self):
+        if len(self.track_records_group) == 0:
+            return []
         return self.track_records_group.groups.keys()
 
     def proj_duration_at_day(self, name, day):

@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog
 from tkinter import *
 import platform
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -24,8 +25,6 @@ from tkinter import font as tkFont
 from tkinter import simpledialog
 from tkinter import messagebox
 from DataControl import DataControl
-
-
 
 
 class MainWindow():
@@ -122,6 +121,9 @@ class MainWindow():
 
         self.setting_button = self._control_button()(text='Setting', command=self.open_setting)
         self.setting_button.grid(column=0, row = 2)
+        self.setting_buttons = []
+        self.setting_buttons.append(self._control_button()(text='data path', command=self.change_data_path))
+
         
         self.return_setting_button = self._control_button()(text='Return', command=self.close_setting)
 
@@ -193,7 +195,9 @@ class MainWindow():
         for label in self.project_labels:
             label[1].grid_remove()
         self.project_area.grid_remove()
-        self.return_setting_button.grid(column=0, row = 0)
+        for b in self.setting_buttons:
+            b.grid()
+        self.return_setting_button.grid()
 
     @_decorator
     def close_setting(self):
@@ -204,6 +208,13 @@ class MainWindow():
         for label in self.project_labels:
             label[1].grid()
         self.return_setting_button.grid_remove()
+        for b in self.setting_buttons:
+            b.grid_remove()
+    
+    def change_data_path(self):
+        folder_selected = filedialog.askdirectory()
+        self.data.set_data_path(folder_selected+"/")
+        print(folder_selected)
 
 
     # ******** rename project **********

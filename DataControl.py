@@ -10,8 +10,12 @@ class DataControl():
         self.working_id = 0
         self.start_time = 0
 
-        log_file = '{}-{}.log'.format(datetime.now().year, datetime.now().month)
-        self.data.loadHistory(log_file)
+        self.data.loadHistory()
+
+    # ******** setting **********
+    def set_data_path(self, data_path):
+        self.data.set_data_path(data_path)
+    
 
     # ******** project **********
     def has_project(self, name):
@@ -51,8 +55,7 @@ class DataControl():
 
     def stop_working(self):
         end_time = datetime.now() 
-        log_file = '{}-{}.log'.format(self.start_time.year, self.start_time.month)
-        self.data.add_entry(self.working_id, self.start_time, end_time, log_file)
+        self.data.add_entry(self.working_id, self.start_time, end_time)
 
 
     # ******** times **********
